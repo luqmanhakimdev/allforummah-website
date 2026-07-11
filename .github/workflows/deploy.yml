@@ -31,25 +31,26 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Verify API token secret
+      - name: Verify secrets
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "::error::CLOUDFLARE_API_TOKEN secret is empty or missing"
             exit 1
           fi
-          echo "CLOUDFLARE_API_TOKEN is present"
-          echo "Using account_id from wrangler.toml (explicit Account ID approach)"
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::CLOUDFLARE_ACCOUNT_ID secret is empty or missing"
+            exit 1
+          fi
+          echo "Secrets are present"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Verify build output
         run: ls -la dist && test -f dist/index.html
 
-      # Account ID comes from wrangler.toml account_id=
-      # CLOUDFLARE_ACCOUNT_ID is also set as a backup for Account-scoped tokens
       - name: Deploy to Cloudflare
         run: npx wrangler deploy --config wrangler.toml
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          # Explicit Account ID (Approach 1) — required for Account-scoped tokens
-          CLOUDFLARE_ACCOUNT_ID: 3f9e5456f446737d1fcd0178ddd6257c
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
