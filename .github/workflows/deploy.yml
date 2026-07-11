@@ -47,10 +47,32 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Verify build output
-        run: ls -la dist && test -f dist/index.html
+        run: ls -la dist && test -f dist/index.html && test -f dist/admin/index.html
+
+      - name: Apply D1 migrations
+        run: npx wrangler d1 migrations apply allforummah-cms --remote --config wrangler.toml
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deploy to Cloudflare
         run: npx wrangler deploy --config wrangler.toml
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Sync CMS secrets
+        run: |
+          if [ -z "$CMS_ADMIN_TOKEN" ]; then
+            echo "CMS_ADMIN_TOKEN not set; skipping secret sync"
+            exit 0
+          fi
+          echo "$CMS_ADMIN_TOKEN" | npx wrangler secret put CMS_ADMIN_TOKEN --config wrangler.toml
+          if [ -n "$R2_PUBLIC_BASE_URL" ]; then
+            echo "$R2_PUBLIC_BASE_URL" | npx wrangler secret put R2_PUBLIC_BASE_URL --config wrangler.toml
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CMS_ADMIN_TOKEN: ${{ secrets.CMS_ADMIN_TOKEN }}
+          R2_PUBLIC_BASE_URL: ${{ secrets.R2_PUBLIC_BASE_URL }}

@@ -1,0 +1,3 @@
+# Local Wrangler secrets / vars for CMS (copy to .dev.vars — do not commit .dev.vars)
+CMS_ADMIN_TOKEN=change-me-to-a-long-random-string
+R2_PUBLIC_BASE_URL=
