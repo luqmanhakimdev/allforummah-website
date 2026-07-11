@@ -37,10 +37,10 @@ Build runs on GitHub runners, then uploads to Cloudflare Workers (static assets)
 Under **Account Resources**, select your account only.  
 Do **not** rely on User → Memberships → Read (Account-scoped tokens cannot have it).
 
-2. Account ID is already set explicitly in `wrangler.toml`:
+2. Put your Cloudflare Account ID in `wrangler.toml` (Dashboard → Workers & Pages → Account ID):
 
 ```toml
-account_id = "3f9e5456f446737d1fcd0178ddd6257c"
+account_id = "your-cloudflare-account-id"
 ```
 
 This skips Wrangler’s `/memberships` auto-discovery.
@@ -50,7 +50,7 @@ This skips Wrangler’s `/memberships` auto-discovery.
 | Secret | Value |
 |---|---|
 | `CLOUDFLARE_API_TOKEN` | Your Account-scoped token |
-| `CLOUDFLARE_ACCOUNT_ID` | `3f9e5456f446737d1fcd0178ddd6257c` (optional backup; also in wrangler.toml) |
+| `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare Account ID (optional backup; also in wrangler.toml) |
 
 4. Push to `main` (or run the workflow manually under **Actions**).
 
