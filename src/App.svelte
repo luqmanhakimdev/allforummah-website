@@ -87,12 +87,32 @@
     };
   }
 
+  /** @type {HTMLVideoElement | undefined} */
+  let heroVideoEl;
+
+  function tryPlayHeroVideo() {
+    if (!heroVideoEl) return;
+    heroVideoEl.muted = true;
+    heroVideoEl.defaultMuted = true;
+    heroVideoEl.setAttribute('muted', '');
+    const play = heroVideoEl.play();
+    if (play && typeof play.catch === 'function') {
+      play.catch(() => {
+        // iPad Low Power Mode / autoplay policy — stays on poster/first frame
+      });
+    }
+  }
+
   onMount(() => {
     updateCountdown();
     const id = setInterval(updateCountdown, 1000);
     const galleryId = setInterval(() => {
       aboutIndex = (aboutIndex + 1) % aboutImages.length;
     }, 4500);
+
+    tryPlayHeroVideo();
+    heroVideoEl?.addEventListener('loadeddata', tryPlayHeroVideo);
+    document.addEventListener('touchstart', tryPlayHeroVideo, { once: true, passive: true });
 
     /** @type {ReturnType<typeof docBox> | null} */
     let countdownStart = null;
@@ -181,6 +201,7 @@
     return () => {
       clearInterval(id);
       clearInterval(galleryId);
+      heroVideoEl?.removeEventListener('loadeddata', tryPlayHeroVideo);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
     };
@@ -191,12 +212,15 @@
   <div class="video-bg" aria-hidden="true">
     <video
       class="video-local"
-      src="https://pub-30ed7488d88a4eeebfc5f9f0c3b793c2.r2.dev/afu-bg.mp4"
+      bind:this={heroVideoEl}
+      src="https://pub-30ed7488d88a4eeebfc5f9f0c3b793c2.r2.dev/afubgsmall.mp4"
       autoplay
       muted
       loop
       playsinline
-      preload="metadata"
+      webkit-playsinline
+      preload="auto"
+      disablepictureinpicture
     ></video>
     <div class="video-dim"></div>
   </div>
