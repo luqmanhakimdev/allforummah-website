@@ -590,6 +590,10 @@ body {
   height: 20px;
 }
 
+.social-link .icon-tiktok {
+  transform: translateY(0.5px);
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .site-header {
