@@ -20,40 +20,30 @@ npm run preview
 
 Output goes to `dist/`.
 
-## Deploy to Cloudflare Pages
+## Deploy to Cloudflare
 
 ### Option A — GitHub Actions (recommended)
 
-Build runs on GitHub runners, then uploads `dist/` to Cloudflare Pages.
+Build runs on GitHub runners, then uploads to Cloudflare Workers (static assets).
 
 1. Create a Cloudflare API token: [API Tokens](https://dash.cloudflare.com/profile/api-tokens) → **Create Token**
-   - Use **Edit Cloudflare Workers**, or custom permissions with **Account → Cloudflare Pages → Edit**
+   - Use **Edit Cloudflare Workers** (includes deploy permissions)
 2. In GitHub repo → **Settings** → **Secrets and variables** → **Actions**, add:
 
 | Secret | Value |
 |---|---|
 | `CLOUDFLARE_API_TOKEN` | Your API token |
-| `CLOUDFLARE_ACCOUNT_ID` | From Cloudflare dashboard URL / Workers & Pages overview |
+| `CLOUDFLARE_ACCOUNT_ID` | From Cloudflare dashboard URL / account overview |
 
 3. Push to `main` (or run the workflow manually under **Actions**).
 
 Workflow file: `.github/workflows/deploy.yml`
 
-If you previously connected the repo to Cloudflare’s own Pages Git build, **disable automatic builds** there so you don’t get double deploys.
+First deploy creates the Worker named `allforummah-website` automatically. You’ll get a `*.workers.dev` URL (and can attach a custom domain later).
 
-### Option B — Cloudflare Git build
+If you previously connected Cloudflare Pages Git builds for this repo, disable them to avoid conflicts.
 
-1. In [Cloudflare Dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Pages** → import the repo.
-2. Settings:
-
-| Setting | Value |
-|---|---|
-| Build command | `npm run build` |
-| Build output directory | `dist` |
-| Deploy command | `true` |
-| Env var | `NODE_VERSION=22` |
-
-### Option C — CLI
+### Option B — CLI
 
 Requires Node.js 22+.
 
@@ -63,6 +53,16 @@ npx wrangler login
 npm run deploy
 ```
 
+### Option C — Cloudflare Pages (dashboard Git build)
+
+Only if you prefer classic Pages. Create the Pages project first in the dashboard, then:
+
+| Setting | Value |
+|---|---|
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Deploy command | `true` |
+| Env var | `NODE_VERSION=22` |
 ## Notes
 
 - Background video and images are loaded from Cloudflare R2.
