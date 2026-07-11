@@ -14,6 +14,17 @@
     'pw231rRnWDk',
   ];
 
+  const R2 = 'https://pub-30ed7488d88a4eeebfc5f9f0c3b793c2.r2.dev';
+
+  const aboutImages = [
+    { src: `${R2}/about-us.jpg`, alt: 'All For Ummah' },
+    { src: `${R2}/afu2.jpg`, alt: 'All For Ummah' },
+    { src: `${R2}/afu3.jpg`, alt: 'All For Ummah' },
+    { src: `${R2}/afu4.jpg`, alt: 'All For Ummah' },
+    { src: `${R2}/afu5.jpg`, alt: 'All For Ummah' },
+    { src: `${R2}/afu6.jpg`, alt: 'All For Ummah' },
+  ];
+
   const TARGET_DATE = new Date('2028-01-01T00:00:00');
 
   let days = $state('00');
@@ -21,6 +32,7 @@
   let minutes = $state('00');
   let seconds = $state('00');
   let progress = $state(0);
+  let aboutIndex = $state(0);
 
   /** @type {HTMLElement | undefined} */
   let heroCountdownEl;
@@ -74,6 +86,9 @@
   onMount(() => {
     updateCountdown();
     const id = setInterval(updateCountdown, 1000);
+    const galleryId = setInterval(() => {
+      aboutIndex = (aboutIndex + 1) % aboutImages.length;
+    }, 4500);
 
     /** @type {ReturnType<typeof docBox> | null} */
     let countdownStart = null;
@@ -161,6 +176,7 @@
 
     return () => {
       clearInterval(id);
+      clearInterval(galleryId);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
     };
@@ -313,10 +329,66 @@
         </div>
 
         <div class="about-media">
-          <img
-            src="https://pub-30ed7488d88a4eeebfc5f9f0c3b793c2.r2.dev/about-us.jpg"
-            alt="All For Ummah"
-          />
+          <div class="about-gallery">
+            <div class="about-gallery-main">
+              {#each aboutImages as image, i}
+                <img
+                  class="about-gallery-image"
+                  class:is-active={aboutIndex === i}
+                  src={image.src}
+                  alt={image.alt}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                />
+              {/each}
+            </div>
+
+            <div class="about-gallery-thumbs" role="tablist" aria-label="Galeri All For Ummah">
+              {#each aboutImages as image, i}
+                <button
+                  type="button"
+                  class="about-gallery-thumb"
+                  class:is-active={aboutIndex === i}
+                  aria-label="Lihat gambar {i + 1}"
+                  aria-selected={aboutIndex === i}
+                  onclick={() => (aboutIndex = i)}
+                >
+                  <img src={image.src} alt="" loading="lazy" />
+                </button>
+              {/each}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="music" id="music">
+      <div class="music-inner">
+        <div class="music-header">
+          <div>
+            <p class="music-label">SoundCloud</p>
+            <h2 class="music-title">Satu by All For Ummah</h2>
+          </div>
+          <a
+            class="music-link"
+            href="https://soundcloud.com/umair-idros/satu-all-for-ummah"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Buka di SoundCloud
+          </a>
+        </div>
+
+        <div class="music-player">
+          <iframe
+            title="Satu - All For Ummah on SoundCloud"
+            width="100%"
+            height="166"
+            scrolling="no"
+            frameborder="no"
+            allow="autoplay"
+            loading="lazy"
+            src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/umair-idros/satu-all-for-ummah&color=%239b5de5&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"
+          ></iframe>
         </div>
       </div>
     </section>
@@ -385,6 +457,27 @@
               ></iframe>
             </div>
           {/each}
+        </div>
+      </div>
+    </section>
+
+    <section class="facebook" id="facebook">
+      <div class="facebook-inner">
+        <div class="facebook-copy">
+          <p class="facebook-label">Facebook</p>
+          <h2 class="facebook-title">Kemas kini</h2>
+          <p class="facebook-text">
+            Ikuti berita, rakaman, dan detik di sebalik tabir All For Ummah terus
+            dari halaman rasmi kami.
+          </p>
+          <a
+            class="facebook-cta"
+            href="https://www.facebook.com/AFUmusic"
+            target="_blank"
+            rel="noreferrer"
+          >
+            AFU Facebook
+          </a>
         </div>
       </div>
     </section>
