@@ -42,6 +42,10 @@
   let countdownStyle = $state('');
   let flying = $state(false);
   let headerContentOpacity = $state(0);
+  /** @type {Array<{id: string, title: string, slug: string, date: string, excerpt: string, body: string, cover_url: string}>} */
+  let posts = $state([]);
+  let postsStatus = $state('loading');
+  let openPostSlug = $state(/** @type {string | null} */ (null));
 
   /** @param {number | string} value */
   function pad(value) {
@@ -109,6 +113,17 @@
     const galleryId = setInterval(() => {
       aboutIndex = (aboutIndex + 1) % aboutImages.length;
     }, 4500);
+
+    fetch('/api/posts')
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => {
+        posts = Array.isArray(data.posts) ? data.posts : [];
+        postsStatus = posts.length ? 'ready' : 'empty';
+      })
+      .catch(() => {
+        posts = [];
+        postsStatus = 'empty';
+      });
 
     tryPlayHeroVideo();
     heroVideoEl?.addEventListener('loadeddata', tryPlayHeroVideo);
@@ -377,7 +392,7 @@
                   class="about-gallery-thumb"
                   class:is-active={aboutIndex === i}
                   aria-label="Lihat gambar {i + 1}"
-                  aria-selected={aboutIndex === i}
+                  aria-current={aboutIndex === i ? 'true' : undefined}
                   onclick={() => (aboutIndex = i)}
                 >
                   <img src={image.src} alt="" loading="lazy" />
@@ -486,6 +501,59 @@
             </div>
           {/each}
         </div>
+      </div>
+    </section>
+
+    <section class="berita" id="berita">
+      <div class="berita-inner">
+        <div class="berita-header">
+          <div>
+            <p class="berita-label">CMS</p>
+            <h2 class="berita-title">Berita</h2>
+          </div>
+        </div>
+
+        {#if postsStatus === 'loading'}
+          <p class="berita-status">Memuatkan…</p>
+        {:else if postsStatus === 'empty'}
+          <p class="berita-status">Belum ada berita. Tambah di <a href="/admin/">/admin</a>.</p>
+        {:else}
+          <div class="berita-list">
+            {#each posts as post}
+              <article class="berita-item" class:is-open={openPostSlug === post.slug}>
+                {#if post.cover_url}
+                  <button
+                    type="button"
+                    class="berita-cover"
+                    aria-label="Buka {post.title}"
+                    onclick={() =>
+                      (openPostSlug = openPostSlug === post.slug ? null : post.slug)}
+                  >
+                    <img src={post.cover_url} alt="" loading="lazy" />
+                  </button>
+                {/if}
+                <div class="berita-copy">
+                  <p class="berita-date">{post.date}</p>
+                  <h3 class="berita-item-title">
+                    <button
+                      type="button"
+                      onclick={() =>
+                        (openPostSlug = openPostSlug === post.slug ? null : post.slug)}
+                    >
+                      {post.title}
+                    </button>
+                  </h3>
+                  {#if post.excerpt}
+                    <p class="berita-excerpt">{post.excerpt}</p>
+                  {/if}
+                  {#if openPostSlug === post.slug && post.body}
+                    <div class="berita-body">{post.body}</div>
+                  {/if}
+                </div>
+              </article>
+            {/each}
+          </div>
+        {/if}
       </div>
     </section>
 
