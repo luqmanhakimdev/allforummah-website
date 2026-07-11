@@ -2,11 +2,11 @@
 
 export const playlist = {
   id: 'PL92BFBBF327B474AF',
-  title: 'Kompilasi Video Nasyid All For Ummah',
+  title: 'All For Ummah Nasyid Video Compilation',
   url: 'https://www.youtube.com/playlist?list=PL92BFBBF327B474AF',
 };
 
-export const LYRICS_PLACEHOLDER = `[Lirik akan ditambah tidak lama lagi]
+export const LYRICS_PLACEHOLDER = `[Lyrics coming soon]
 
 Verse 1
 —
@@ -182,7 +182,7 @@ export function getPlaylistByYear() {
 
   const other = groups.get('other');
   if (other?.length) {
-    sections.push({ label: 'Lain-lain', year: null, videos: other });
+    sections.push({ label: 'Others', year: null, videos: other });
   }
 
   return sections;

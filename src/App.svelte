@@ -3,6 +3,7 @@
   import Home from './pages/Home.svelte';
   import Songs from './pages/Songs.svelte';
   import SongDetail from './pages/SongDetail.svelte';
+  import SideNav from './lib/SideNav.svelte';
 
   /** @param {string} pathname */
   function normalize(pathname) {
@@ -15,7 +16,9 @@
   );
 
   const songId = $derived(
-    path.startsWith('/lagu/') ? decodeURIComponent(path.slice('/lagu/'.length)) : null,
+    path.startsWith('/discoversong/')
+      ? decodeURIComponent(path.slice('/discoversong/'.length))
+      : null,
   );
 
   onMount(() => {
@@ -28,10 +31,12 @@
   });
 </script>
 
-{#if path === '/lagu'}
+{#if path === '/discoversong'}
   <Songs />
 {:else if songId}
   <SongDetail videoId={songId} />
 {:else}
   <Home />
 {/if}
+
+<SideNav {path} />

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import SocialLinks from '../lib/SocialLinks.svelte';
   import { playlistVideos } from '../lib/songs.js';
+  import { clock, ensureCountdown } from '../lib/countdown.svelte.js';
 
   const channelVideos = ['VmKQdOHsu7g', 'BBkJ3djILpg', 'RwUhGf8s0ZU'];
 
@@ -32,12 +33,6 @@
     alt: video.title,
   }));
 
-  const TARGET_DATE = new Date('2028-01-01T00:00:00');
-
-  let days = $state('00');
-  let hours = $state('00');
-  let minutes = $state('00');
-  let seconds = $state('00');
   let progress = $state(0);
   let aboutIndex = $state(0);
   let discoverIndex = $state(0);
@@ -51,11 +46,6 @@
   let countdownStyle = $state('');
   let flying = $state(false);
   let headerContentOpacity = $state(0);
-
-  /** @param {number | string} value */
-  function pad(value) {
-    return String(value).padStart(2, '0');
-  }
 
   /** @param {number} a @param {number} b @param {number} t */
   function lerp(a, b, t) {
@@ -71,16 +61,6 @@
   function smoothstep(edge0, edge1, x) {
     const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
     return t * t * (3 - 2 * t);
-  }
-
-  function updateCountdown() {
-    const diff = Math.max(0, TARGET_DATE.getTime() - Date.now());
-    const totalSeconds = Math.floor(diff / 1000);
-
-    days = pad(Math.floor(totalSeconds / 86400));
-    hours = pad(Math.floor((totalSeconds % 86400) / 3600));
-    minutes = pad(Math.floor((totalSeconds % 3600) / 60));
-    seconds = pad(totalSeconds % 60);
   }
 
   /**
@@ -114,8 +94,7 @@
 
   onMount(() => {
     document.title = 'All For Ummah';
-    updateCountdown();
-    const id = setInterval(updateCountdown, 1000);
+    ensureCountdown();
     const galleryId = setInterval(() => {
       aboutIndex = (aboutIndex + 1) % aboutImages.length;
     }, 4500);
@@ -218,7 +197,6 @@
     window.addEventListener('resize', onResize);
 
     return () => {
-      clearInterval(id);
       clearInterval(galleryId);
       if (discoverId) clearInterval(discoverId);
       heroVideoEl?.removeEventListener('loadeddata', tryPlayHeroVideo);
@@ -268,19 +246,19 @@
       aria-label="Countdown to 2028"
     >
       <div class="site-header-unit">
-        <span class="site-header-value">{days}</span>
+        <span class="site-header-value">{clock.days}</span>
         <span class="site-header-label">D</span>
       </div>
       <div class="site-header-unit">
-        <span class="site-header-value">{hours}</span>
+        <span class="site-header-value">{clock.hours}</span>
         <span class="site-header-label">H</span>
       </div>
       <div class="site-header-unit">
-        <span class="site-header-value">{minutes}</span>
+        <span class="site-header-value">{clock.minutes}</span>
         <span class="site-header-label">M</span>
       </div>
       <div class="site-header-unit">
-        <span class="site-header-value">{seconds}</span>
+        <span class="site-header-value">{clock.seconds}</span>
         <span class="site-header-label">S</span>
       </div>
     </div>
@@ -294,19 +272,19 @@
   >
     <div class="countdown">
       <div class="countdown-unit">
-        <span class="countdown-value">{days}</span>
+        <span class="countdown-value">{clock.days}</span>
         <span class="countdown-label">Days</span>
       </div>
       <div class="countdown-unit">
-        <span class="countdown-value">{hours}</span>
+        <span class="countdown-value">{clock.hours}</span>
         <span class="countdown-label">Hours</span>
       </div>
       <div class="countdown-unit">
-        <span class="countdown-value">{minutes}</span>
+        <span class="countdown-value">{clock.minutes}</span>
         <span class="countdown-label">Minutes</span>
       </div>
       <div class="countdown-unit">
-        <span class="countdown-value">{seconds}</span>
+        <span class="countdown-value">{clock.seconds}</span>
         <span class="countdown-label">Seconds</span>
       </div>
     </div>
@@ -333,19 +311,19 @@
             aria-label="Countdown to 2028"
           >
             <div class="countdown-unit">
-              <span class="countdown-value">{days}</span>
+              <span class="countdown-value">{clock.days}</span>
               <span class="countdown-label">Days</span>
             </div>
             <div class="countdown-unit">
-              <span class="countdown-value">{hours}</span>
+              <span class="countdown-value">{clock.hours}</span>
               <span class="countdown-label">Hours</span>
             </div>
             <div class="countdown-unit">
-              <span class="countdown-value">{minutes}</span>
+              <span class="countdown-value">{clock.minutes}</span>
               <span class="countdown-label">Minutes</span>
             </div>
             <div class="countdown-unit">
-              <span class="countdown-value">{seconds}</span>
+              <span class="countdown-value">{clock.seconds}</span>
               <span class="countdown-label">Seconds</span>
             </div>
           </div>
@@ -361,23 +339,20 @@
       <div class="about-inner">
         <div class="about-header">
           <div>
-            <p class="about-label">Tentang kami</p>
+            <p class="about-label">About us</p>
             <h2 class="about-title">All For Ummah</h2>
           </div>
         </div>
 
         <div class="about-body">
           <p class="about-text">
-            Kumpulan All For Ummah merupakan sebuah kumpulan pemuzik dan penyanyi
-            yang aktif di Malaysia. Kumpulan ini menyampaikan lagu-lagu berirama
-            nasyid Melayu. Kumpulan ini juga mewakili SMA Persekutuan Kajang dalam
-            pertandingan-pertandingan nasyid sekolah menengah. Kumpulan nasyid ini
-            juga pernah digeruni oleh kumpulan-kumpulan nasyid sekolah menengah yang
-            lain atas kejayaannya. Kumpulan nasyid ini juga telah merangkul gelaran
-            johan bagi Acara Nasyid Sekolah Menengah dalam Pertandingan FNKSS KPM
-            (Festival Nasyid dan Khat Sekolah-Sekolah Kementerian Pendidikan
-            Malaysia) Peringkat Kebangsaan tiga kali berturut-turut iaitu pada tahun
-            2004, 2005, 2006.
+            All For Ummah is a group of musicians and singers active in Malaysia.
+            They perform Malay nasyid songs and have represented SMA Persekutuan
+            Kajang in secondary school nasyid competitions. The group was once
+            feared by other school nasyid ensembles for its achievements, and won
+            the national secondary school nasyid title at FNKSS KPM (Festival
+            Nasyid dan Khat Sekolah-Sekolah Kementerian Pendidikan Malaysia) three
+            years in a row — 2004, 2005, and 2006.
           </p>
 
           <div class="about-media">
@@ -394,13 +369,13 @@
                 {/each}
               </div>
 
-              <div class="about-gallery-thumbs" role="tablist" aria-label="Galeri All For Ummah">
+              <div class="about-gallery-thumbs" role="tablist" aria-label="All For Ummah gallery">
                 {#each aboutImages as image, i}
                   <button
                     type="button"
                     class="about-gallery-thumb"
                     class:is-active={aboutIndex === i}
-                    aria-label="Lihat gambar {i + 1}"
+                    aria-label="View image {i + 1}"
                     aria-selected={aboutIndex === i}
                     onclick={() => (aboutIndex = i)}
                   >
@@ -440,13 +415,12 @@
           </div>
         </div>
         <div class="discover-copy">
-          <p class="discover-label">Lagu</p>
-          <h2 class="discover-title">Koleksi Lagu All For Ummah</h2>
+          <p class="discover-label">Songs</p>
+          <h2 class="discover-title">All For Ummah Song Collection</h2>
           <p class="discover-text">
-            Dengarkan koleksi rakaman All For Ummah — dari lagu yang dikenali hingga
-            yang baharu.
+            Listen to All For Ummah recordings — from familiar songs to newer ones.
           </p>
-          <a class="discover-cta" href="/lagu">Koleksi lagu</a>
+          <a class="discover-cta" href="/discoversong">Song collection</a>
         </div>
       </div>
     </section>
@@ -455,18 +429,18 @@
       <div class="evolution-inner">
         <div class="evolution-header">
           <div>
-            <p class="evolution-label">Evolusi</p>
-            <h2 class="evolution-title">Perjalanan All For Ummah</h2>
+            <p class="evolution-label">Evolution</p>
+            <h2 class="evolution-title">The All For Ummah Journey</h2>
           </div>
           <p class="evolution-aside">
-            Tonton kisah evolusi kumpulan — dari awal hingga hari ini.
+            Watch the group’s evolution — from the beginning to today.
           </p>
         </div>
 
         <div class="evolution-video">
           <iframe
             src="https://www.youtube.com/embed/kAgJuEQJCtI"
-            title="Evolusi All For Ummah"
+            title="All For Ummah Evolution"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowfullscreen
             loading="lazy"
@@ -489,7 +463,7 @@
             target="_blank"
             rel="noreferrer"
           >
-            Lihat semua
+            View all
           </a>
         </div>
 
@@ -523,7 +497,7 @@
             target="_blank"
             rel="noreferrer"
           >
-            Lihat playlist
+            View playlist
           </a>
         </div>
 
@@ -551,8 +525,8 @@
             <p class="music-label">SoundCloud</p>
             <h2 class="music-title">Satu by All For Ummah</h2>
           </div>
-          <a class="music-link" href="/lagu">
-            Koleksi lagu
+          <a class="music-link" href="/discoversong">
+            Song collection
           </a>
         </div>
 
@@ -575,10 +549,10 @@
       <div class="facebook-inner">
         <div class="facebook-copy">
           <p class="facebook-label">Facebook</p>
-          <h2 class="facebook-title">Kemas kini</h2>
+          <h2 class="facebook-title">Updates</h2>
           <p class="facebook-text">
-            Ikuti berita, rakaman, dan detik di sebalik tabir All For Ummah terus
-            dari halaman rasmi kami.
+            Follow All For Ummah news, recordings, and behind-the-scenes moments
+            on our official page.
           </p>
           <a
             class="facebook-cta"
@@ -595,7 +569,7 @@
 
   <footer class="footer">
     <div class="footer-inner">
-      <p class="footer-label">Ikuti kami</p>
+      <p class="footer-label">Follow us</p>
       <SocialLinks />
       <p class="footer-copy">All For Ummah 2026. All rights reserved.</p>
     </div>

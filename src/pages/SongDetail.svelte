@@ -1,9 +1,9 @@
 <script>
   import SocialLinks from '../lib/SocialLinks.svelte';
+  import PageHeader from '../lib/PageHeader.svelte';
   import {
     getPlaylistVideo,
     LYRICS_PLACEHOLDER,
-    playlist,
   } from '../lib/songs.js';
 
   /** @type {{ videoId: string }} */
@@ -15,39 +15,22 @@
   $effect(() => {
     document.title = video
       ? `${video.title} — All For Ummah`
-      : 'Lagu tidak dijumpai — All For Ummah';
+      : 'Song not found — All For Ummah';
   });
 </script>
 
 <div class="page songs-page">
   <div class="glow" aria-hidden="true"></div>
 
-  <header class="songs-top">
-    <a href="/" class="site-header-brand">
-      <span class="site-header-title">
-        <span class="site-header-word">ALL FOR</span>
-        <span class="site-header-word">UMMAH</span>
-      </span>
-      <span class="site-header-script">Sebuah Perjalanan</span>
-    </a>
-    <a class="songs-back" href="/lagu">← Koleksi lagu</a>
-  </header>
+  <PageHeader />
 
   <main>
     {#if video}
       <section class="song-detail">
         <div class="song-detail-inner">
           <div class="song-detail-header">
-            <p class="songs-label">Lagu</p>
+            <p class="songs-label">Song</p>
             <h1 class="songs-title">{video.title}</h1>
-            <a
-              class="song-item-link"
-              href="https://www.youtube.com/watch?v={video.id}&list={playlist.id}"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Buka di YouTube
-            </a>
           </div>
 
           <div class="song-detail-video">
@@ -62,8 +45,8 @@
           </div>
 
           <div class="song-detail-lyrics">
-            <p class="songs-label">Lirik</p>
-            <h2 class="song-detail-lyrics-title">Lirik lagu</h2>
+            <p class="songs-label">Lyrics</p>
+            <h2 class="song-detail-lyrics-title">Song lyrics</h2>
             <pre class="song-detail-lyrics-body">{lyrics}</pre>
           </div>
         </div>
@@ -71,10 +54,10 @@
     {:else}
       <section class="song-detail">
         <div class="song-detail-inner">
-          <p class="songs-label">Lagu</p>
-          <h1 class="songs-title">Tidak dijumpai</h1>
-          <p class="songs-intro">Lagu ini tiada dalam koleksi.</p>
-          <a class="discover-cta" href="/lagu">Kembali ke koleksi</a>
+          <p class="songs-label">Song</p>
+          <h1 class="songs-title">Not found</h1>
+          <p class="songs-intro">This song is not in the collection.</p>
+          <a class="discover-cta" href="/discoversong">Back to collection</a>
         </div>
       </section>
     {/if}
@@ -82,7 +65,7 @@
 
   <footer class="footer">
     <div class="footer-inner">
-      <p class="footer-label">Ikuti kami</p>
+      <p class="footer-label">Follow us</p>
       <SocialLinks />
       <p class="footer-copy">All For Ummah 2026. All rights reserved.</p>
     </div>
