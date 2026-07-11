@@ -1,6 +1,6 @@
 # All For Ummah Website
 
-Landing page for All For Ummah, built with Svelte + Vite.
+Landing page for All For Ummah, built with Svelte + Vite..
 
 ## Local development
 
