@@ -20,9 +20,32 @@
   let hours = $state('00');
   let minutes = $state('00');
   let seconds = $state('00');
+  let progress = $state(0);
+
+  /** @type {HTMLElement | undefined} */
+  let heroCountdownEl;
+  /** @type {HTMLElement | undefined} */
+  let headerCountdownSlot;
+
+  let countdownStyle = $state('');
+  let flying = $state(false);
+  let headerContentOpacity = $state(0);
 
   function pad(value) {
     return String(value).padStart(2, '0');
+  }
+
+  function lerp(a, b, t) {
+    return a + (b - a) * t;
+  }
+
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function smoothstep(edge0, edge1, x) {
+    const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
+    return t * t * (3 - 2 * t);
   }
 
   function updateCountdown() {
@@ -35,10 +58,112 @@
     seconds = pad(totalSeconds % 60);
   }
 
+  /**
+   * @param {HTMLElement} el
+   */
+  function docBox(el) {
+    const r = el.getBoundingClientRect();
+    return {
+      top: r.top + window.scrollY,
+      left: r.left + window.scrollX,
+      width: r.width,
+      height: r.height,
+    };
+  }
+
   onMount(() => {
     updateCountdown();
     const id = setInterval(updateCountdown, 1000);
-    return () => clearInterval(id);
+
+    /** @type {ReturnType<typeof docBox> | null} */
+    let countdownStart = null;
+    let ticking = false;
+
+    function measureStarts() {
+      if (!heroCountdownEl) return;
+      countdownStart = docBox(heroCountdownEl);
+    }
+
+    function updateMorph() {
+      const range = Math.min(window.innerHeight * 0.72, 560);
+      const raw = Math.min(1, Math.max(0, window.scrollY / range));
+      const p = easeOutCubic(raw);
+      progress = raw;
+
+      if (raw <= 0.002) {
+        flying = false;
+        countdownStyle = '';
+        headerContentOpacity = 0;
+        measureStarts();
+        ticking = false;
+        return;
+      }
+
+      if (!countdownStart) measureStarts();
+      if (!countdownStart || !headerCountdownSlot) {
+        ticking = false;
+        return;
+      }
+
+      flying = true;
+
+      const countdownEnd = headerCountdownSlot.getBoundingClientRect();
+      const shrinkP = Math.pow(raw, 0.62);
+
+      const startCountTop = countdownStart.top - window.scrollY;
+      const startCountLeft = countdownStart.left - window.scrollX;
+      const countScale = lerp(
+        1,
+        Math.min(countdownEnd.height / countdownStart.height, 0.35),
+        shrinkP,
+      );
+      const countCX = lerp(
+        startCountLeft + countdownStart.width / 2,
+        countdownEnd.left + countdownEnd.width / 2,
+        p,
+      );
+      const countCY = lerp(
+        startCountTop + countdownStart.height / 2,
+        countdownEnd.top + countdownEnd.height / 2,
+        p,
+      );
+
+      const flyOpacity = 1 - smoothstep(0.08, 0.55, raw);
+      headerContentOpacity = smoothstep(0.25, 0.7, raw);
+
+      countdownStyle = [
+        `top:${countCY}px`,
+        `left:${countCX}px`,
+        `transform:translate(-50%, -50%) scale(${countScale})`,
+        `transform-origin:center center`,
+        `opacity:${flyOpacity}`,
+      ].join(';');
+
+      ticking = false;
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(updateMorph);
+    }
+
+    function onResize() {
+      countdownStart = null;
+      measureStarts();
+      updateMorph();
+    }
+
+    measureStarts();
+    updateMorph();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+    };
   });
 </script>
 
@@ -58,40 +183,111 @@
 
   <div class="glow" aria-hidden="true"></div>
 
-  <header class="header">
-    <a href="/" class="logo" aria-label="All For Ummah"></a>
+  <header
+    class="site-header"
+    class:is-visible={progress > 0.08}
+    class:is-docked={progress >= 0.98}
+    style="--header-progress: {progress}; --header-content-opacity: {headerContentOpacity}"
+    aria-hidden={progress < 0.5}
+  >
+    <div class="site-header-bar"></div>
+    <a href="/" class="site-header-brand site-header-slot">
+      <span class="site-header-title">
+        <span class="site-header-word">ALL FOR</span>
+        <span class="site-header-word">UMMAH</span>
+      </span>
+      <span class="site-header-script">Sebuah Perjalanan</span>
+    </a>
+    <div
+      class="site-header-countdown site-header-slot"
+      bind:this={headerCountdownSlot}
+      aria-label="Countdown to 2028"
+    >
+      <div class="site-header-unit">
+        <span class="site-header-value">{days}</span>
+        <span class="site-header-label">D</span>
+      </div>
+      <div class="site-header-unit">
+        <span class="site-header-value">{hours}</span>
+        <span class="site-header-label">H</span>
+      </div>
+      <div class="site-header-unit">
+        <span class="site-header-value">{minutes}</span>
+        <span class="site-header-label">M</span>
+      </div>
+      <div class="site-header-unit">
+        <span class="site-header-value">{seconds}</span>
+        <span class="site-header-label">S</span>
+      </div>
+    </div>
   </header>
+
+  <div
+    class="fly-countdown"
+    class:is-flying={flying}
+    style={countdownStyle}
+    aria-hidden="true"
+  >
+    <div class="countdown">
+      <div class="countdown-unit">
+        <span class="countdown-value">{days}</span>
+        <span class="countdown-label">Days</span>
+      </div>
+      <div class="countdown-unit">
+        <span class="countdown-value">{hours}</span>
+        <span class="countdown-label">Hours</span>
+      </div>
+      <div class="countdown-unit">
+        <span class="countdown-value">{minutes}</span>
+        <span class="countdown-label">Minutes</span>
+      </div>
+      <div class="countdown-unit">
+        <span class="countdown-value">{seconds}</span>
+        <span class="countdown-label">Seconds</span>
+      </div>
+    </div>
+  </div>
 
   <main>
     <section class="hero">
       <div class="hero-content">
-        <h1 class="headline">
-          <span class="headline-stack">
-            <span class="headline-main">ALL FOR<br />UMMAH</span>
-            <span class="headline-script">Sebuah Perjalanan</span>
-          </span>
-        </h1>
+        <div class="hero-brand">
+          <h1 class="headline">
+            <span class="headline-stack">
+              <span class="headline-main">
+                <span class="headline-line">ALL FOR</span>
+                <span class="headline-line">UMMAH</span>
+              </span>
+              <span class="headline-script">Sebuah Perjalanan</span>
+            </span>
+          </h1>
 
-        <div class="countdown" aria-label="Countdown to 2028">
-          <div class="countdown-unit">
-            <span class="countdown-value">{days}</span>
-            <span class="countdown-label">Days</span>
-          </div>
-          <div class="countdown-unit">
-            <span class="countdown-value">{hours}</span>
-            <span class="countdown-label">Hours</span>
-          </div>
-          <div class="countdown-unit">
-            <span class="countdown-value">{minutes}</span>
-            <span class="countdown-label">Minutes</span>
-          </div>
-          <div class="countdown-unit">
-            <span class="countdown-value">{seconds}</span>
-            <span class="countdown-label">Seconds</span>
+          <div
+            class="countdown"
+            class:is-placeholder={flying}
+            bind:this={heroCountdownEl}
+            aria-label="Countdown to 2028"
+          >
+            <div class="countdown-unit">
+              <span class="countdown-value">{days}</span>
+              <span class="countdown-label">Days</span>
+            </div>
+            <div class="countdown-unit">
+              <span class="countdown-value">{hours}</span>
+              <span class="countdown-label">Hours</span>
+            </div>
+            <div class="countdown-unit">
+              <span class="countdown-value">{minutes}</span>
+              <span class="countdown-label">Minutes</span>
+            </div>
+            <div class="countdown-unit">
+              <span class="countdown-value">{seconds}</span>
+              <span class="countdown-label">Seconds</span>
+            </div>
           </div>
         </div>
 
-        <div class="hero-social">
+        <div class="hero-social" style="opacity: {Math.max(0, 1 - progress * 1.4)}">
           <SocialLinks iconsOnly />
         </div>
       </div>
