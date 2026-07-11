@@ -51,22 +51,16 @@ Pushes to `main` build and deploy via [`.github/workflows/deploy.yml`](.github/w
 
    Limit **Account Resources** to your account only.
 
-2. Set your Account ID in [`wrangler.toml`](wrangler.toml)  
-   (Cloudflare Dashboard → Workers & Pages → copy **Account ID**):
-
-   ```toml
-   account_id = "your-cloudflare-account-id"
-   ```
-
-3. Add GitHub Actions secrets  
-   **Settings → Secrets and variables → Actions**:
+2. Add GitHub Actions secrets  
+   **Settings → Secrets and variables → Actions**  
+   (Account ID: Cloudflare Dashboard → Workers & Pages → **Account ID**):
 
    | Secret | Value |
    |---|---|
    | `CLOUDFLARE_API_TOKEN` | The token from step 1 |
    | `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare Account ID |
 
-4. Push to `main`, or run the workflow manually under **Actions**.
+3. Push to `main`, or run the workflow manually under **Actions**.
 
 The Worker name is `allforummah-website`. First deploy creates it and a `*.workers.dev` URL. You can attach a custom domain later in the Cloudflare dashboard.
 
@@ -77,9 +71,10 @@ If this repo was previously connected to Cloudflare Pages Git builds, disable th
 ```bash
 npm install
 npx wrangler login
-npm run deploy
+CLOUDFLARE_ACCOUNT_ID=your-cloudflare-account-id npm run deploy
 ```
 
+Or export `CLOUDFLARE_ACCOUNT_ID` in your shell before deploying. Do not commit Account IDs.
 ## Project structure
 
 | Path | Purpose |
