@@ -43,18 +43,22 @@
   let flying = $state(false);
   let headerContentOpacity = $state(0);
 
+  /** @param {number | string} value */
   function pad(value) {
     return String(value).padStart(2, '0');
   }
 
+  /** @param {number} a @param {number} b @param {number} t */
   function lerp(a, b, t) {
     return a + (b - a) * t;
   }
 
+  /** @param {number} t */
   function easeOutCubic(t) {
     return 1 - Math.pow(1 - t, 3);
   }
 
+  /** @param {number} edge0 @param {number} edge1 @param {number} x */
   function smoothstep(edge0, edge1, x) {
     const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
     return t * t * (3 - 2 * t);
