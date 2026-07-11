@@ -1,36 +1,12 @@
-# Cloudflare Workers static assets + CMS API
+# Cloudflare Workers static assets
 # https://developers.cloudflare.com/workers/static-assets/
 #
-# Account ID comes from CLOUDFLARE_ACCOUNT_ID (env / GitHub secret).
-# Create D1 + R2 once, then fill database_id / bucket_name below:
-#   npx wrangler d1 create allforummah-cms
-#   npx wrangler r2 bucket create allforummah-cms-media
+# Account ID comes from the CLOUDFLARE_ACCOUNT_ID environment variable
+# (GitHub Actions secret or local shell). Do not commit account IDs here.
 
 name = "allforummah-website"
-main = "./worker/index.js"
 compatibility_date = "2026-07-11"
 
 [assets]
 directory = "./dist"
-binding = "ASSETS"
 not_found_handling = "single-page-application"
-run_worker_first = ["/api/*"]
-
-[[d1_databases]]
-binding = "DB"
-database_name = "allforummah-cms"
-database_id = "354b56d3-b0e8-4d73-b765-e435a6a5705a"
-migrations_dir = "migrations"
-
-[[r2_buckets]]
-binding = "MEDIA"
-bucket_name = "allforummah-cms-media"
-preview_bucket_name = "allforummah-cms-media"
-
-[vars]
-# Public base URL for R2 objects (custom domain or r2.dev). Leave empty to use /api/media/*
-R2_PUBLIC_BASE_URL = ""
-
-# Set secrets (not committed):
-#   npx wrangler secret put CMS_ADMIN_TOKEN
-#   npx wrangler secret put R2_PUBLIC_BASE_URL   # optional override of vars
