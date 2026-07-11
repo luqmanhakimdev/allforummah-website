@@ -33,11 +33,24 @@ Output goes to `dist/`.
 | Framework preset | Vite |
 | Build command | `npm run build` |
 | Build output directory | `dist` |
-| Node version | `20` (or set `NODE_VERSION=20` in environment variables) |
+| Deploy command | `npx wrangler pages deploy dist` |
+| Environment variable | `NODE_VERSION=22` |
+
+Important:
+- Use **`wrangler pages deploy`**, not `wrangler deploy`
+- Set **`NODE_VERSION=22`** (Wrangler needs Node 22+)
+
+If Cloudflare still fails auth on the deploy step, try this as Deploy command instead (no-op, Pages already has `dist`):
+
+```bash
+true
+```
 
 4. Deploy. Cloudflare will rebuild on every push to your production branch.
 
 ### Option B — CLI
+
+Requires Node.js 22+.
 
 ```bash
 npm install
