@@ -1,7 +1,8 @@
-# Cloudflare Workers static assets (recommended for new projects)
+# Cloudflare Workers static assets
 # https://developers.cloudflare.com/workers/static-assets/
 
 name = "allforummah-website"
+account_id = "3f9e5456f446737d1fcd0178ddd6257c"
 compatibility_date = "2026-07-11"
 
 [assets]

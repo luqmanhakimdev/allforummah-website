@@ -37,4 +37,8 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: npm
           command: deploy
+        env:
+          # wrangler-action@v3 still runs on Node 20; allow until action upgrades
+          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true

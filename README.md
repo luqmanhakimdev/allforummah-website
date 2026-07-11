@@ -26,14 +26,25 @@ Output goes to `dist/`.
 
 Build runs on GitHub runners, then uploads to Cloudflare Workers (static assets).
 
-1. Create a Cloudflare API token: [API Tokens](https://dash.cloudflare.com/profile/api-tokens) → **Create Token**
-   - Use **Edit Cloudflare Workers** (includes deploy permissions)
-2. In GitHub repo → **Settings** → **Secrets and variables** → **Actions**, add:
+1. Create a Cloudflare API token: [API Tokens](https://dash.cloudflare.com/profile/api-tokens) → **Create Token** → **Create Custom Token**:
+
+| Permission | Access |
+|---|---|
+| Account → Workers Scripts | Edit |
+| Account → Workers KV Storage | Edit |
+| Account → Account Settings | Read |
+| User → User Details | Read |
+
+Or use the **Edit Cloudflare Workers** template, then confirm it includes **Workers Scripts:Edit**.
+
+2. In GitHub repo → **Settings** → **Secrets and variables** → **Actions**, add/update:
 
 | Secret | Value |
 |---|---|
-| `CLOUDFLARE_API_TOKEN` | Your API token |
-| `CLOUDFLARE_ACCOUNT_ID` | From Cloudflare dashboard URL / account overview |
+| `CLOUDFLARE_API_TOKEN` | The new token (replace any old/wrong token) |
+| `CLOUDFLARE_ACCOUNT_ID` | `3f9e5456f446737d1fcd0178ddd6257c` |
+
+Auth error `10000` almost always means the token is missing **Workers Scripts Edit**, or the secret value is wrong/expired.
 
 3. Push to `main` (or run the workflow manually under **Actions**).
 
