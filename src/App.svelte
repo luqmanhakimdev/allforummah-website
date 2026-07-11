@@ -198,6 +198,7 @@
     <div class="footer-inner">
       <p class="footer-label">Ikuti kami</p>
       <SocialLinks />
+      <p class="footer-copy">All For Ummah 2026. All rights reserved.</p>
     </div>
   </footer>
 </div>
