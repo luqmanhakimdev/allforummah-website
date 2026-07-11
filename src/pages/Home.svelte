@@ -1,8 +1,9 @@
 <script>
   import { onMount } from 'svelte';
   import SocialLinks from '../lib/SocialLinks.svelte';
-  import { playlistVideos } from '../lib/songs.js';
+  import { getTopPicks } from '../lib/songs.js';
   import { clock, ensureCountdown } from '../lib/countdown.svelte.js';
+  import { navigate } from '../lib/playerState.svelte.js';
 
   const channelVideos = ['VmKQdOHsu7g', 'BBkJ3djILpg', 'RwUhGf8s0ZU'];
 
@@ -27,7 +28,7 @@
     { src: `${R2}/afu6.jpg`, alt: 'All For Ummah' },
   ];
 
-  const discoverThumbs = playlistVideos.map((video) => ({
+  const discoverThumbs = getTopPicks().map((video) => ({
     id: video.id,
     src: `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`,
     alt: video.title,
@@ -37,6 +38,12 @@
   let aboutIndex = $state(0);
   let discoverIndex = $state(0);
   let discoverAnimating = $state(true);
+
+  /** @param {MouseEvent} event @param {string} href */
+  function go(event, href) {
+    event.preventDefault();
+    navigate(href);
+  }
 
   /** @type {HTMLElement | undefined} */
   let heroCountdownEl;
@@ -420,7 +427,7 @@
           <p class="discover-text">
             Listen to All For Ummah recordings — from familiar songs to newer ones.
           </p>
-          <a class="discover-cta" href="/discoversong">Song collection</a>
+          <a class="discover-cta" href="/discoversong" onclick={(event) => go(event, '/discoversong')}>Song collection</a>
         </div>
       </div>
     </section>
@@ -525,7 +532,7 @@
             <p class="music-label">SoundCloud</p>
             <h2 class="music-title">Satu by All For Ummah</h2>
           </div>
-          <a class="music-link" href="/discoversong">
+          <a class="music-link" href="/discoversong" onclick={(event) => go(event, '/discoversong')}>
             Song collection
           </a>
         </div>

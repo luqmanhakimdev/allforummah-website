@@ -24,6 +24,18 @@ Chorus
 —
 —`;
 
+/** Strip shared leading indent so template-string formatting stays left-aligned. */
+/** @param {string} text */
+export function formatLyrics(text) {
+  const trimmed = text.replace(/^\s*\n/, '').replace(/\n\s*$/, '');
+  const lines = trimmed.split('\n');
+  const indents = lines
+    .filter((line) => line.trim().length > 0)
+    .map((line) => line.match(/^ */)?.[0].length ?? 0);
+  const indent = indents.length ? Math.min(...indents) : 0;
+  return lines.map((line) => line.slice(indent)).join('\n').trim();
+}
+
 /** @type {PlaylistVideo[]} */
 export const playlistVideos = [
   { id: 'FXatNxM-xFo', title: 'Sejati - All For Ummah', year: null },
@@ -59,6 +71,20 @@ export const playlistVideos = [
     id: '-_FMjiXUACU',
     title: 'All For Ummah 2009 Festival Nasyid Kebangsaan Lagu 1 (Anugerah Lagu Tema Terbaik)',
     year: 2009,
+    lyrics: `Sejarah silam menjadi panduan
+Mekar mewangi sepanjang zaman
+Sejarah silam menjadi panduan
+Mekar mewangi sepanjang zaman
+
+Lahirnya utusan
+Permata junjungan
+Pekerti murni
+Jadi Sandaran
+
+Bina kehidupan
+Tempuh cabaran
+Akhlak mulia
+Jadi tauladan`,
   },
   {
     id: 'F6jYjtObBdw',
@@ -186,4 +212,22 @@ export function getPlaylistByYear() {
   }
 
   return sections;
+}
+
+/**
+ * Top picks by YouTube view count (playlist PL92BFBBF327B474AF, checked Jul 2026).
+ * @returns {PlaylistVideo[]}
+ */
+export function getTopPicks() {
+  const ids = [
+    '-_FMjiXUACU',
+    'UZB5sXAC1Qc',
+    'jE1IazI8rN8',
+    'F6jYjtObBdw',
+    'm_yu8RltOdc',
+  ];
+  return ids.flatMap((id) => {
+    const video = getPlaylistVideo(id);
+    return video ? [video] : [];
+  });
 }

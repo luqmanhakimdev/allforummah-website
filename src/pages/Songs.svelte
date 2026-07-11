@@ -2,9 +2,17 @@
   import { onMount } from 'svelte';
   import SocialLinks from '../lib/SocialLinks.svelte';
   import PageHeader from '../lib/PageHeader.svelte';
-  import { playlist, getPlaylistByYear } from '../lib/songs.js';
+  import { playlist, getPlaylistByYear, getTopPicks } from '../lib/songs.js';
+  import { playSong } from '../lib/playerState.svelte.js';
 
   const yearSections = getPlaylistByYear();
+  const topPicks = getTopPicks();
+
+  /** @param {MouseEvent} event @param {{ id: string, title: string }} video */
+  function onSongClick(event, video) {
+    event.preventDefault();
+    playSong(video, { openLyrics: true });
+  }
 
   onMount(() => {
     document.title = 'Song Collection — All For Ummah';
@@ -24,21 +32,51 @@
         <p class="songs-intro">
           {playlist.title}. Listen to All For Ummah recordings and performances.
         </p>
-        <!--
-        <a
-          class="songs-playlist-btn"
-          href={playlist.url}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path
-              d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
-            />
-          </svg>
-          <span>Open on YouTube</span>
-        </a>
-        -->
+        <p class="songs-disclaimer">
+          We’re still building this collection — more songs will be added soon.
+        </p>
+      </div>
+    </section>
+
+    <section class="songs-catalog songs-top-picks" id="top-picks">
+      <div class="catalog-row">
+        <div class="catalog-row-inner">
+          <h2 class="catalog-row-title">Top Picks</h2>
+          <p class="catalog-row-sub">Most watched from YouTube</p>
+          <div class="top-picks-track">
+            {#each topPicks as video, i}
+              <a
+                class="top-pick-card"
+                href="/discoversong"
+                onclick={(event) => onSongClick(event, video)}
+              >
+                <img
+                  class="top-pick-image"
+                  src="https://i.ytimg.com/vi/{video.id}/hqdefault.jpg"
+                  alt=""
+                  loading="lazy"
+                />
+                <span class="top-pick-shade" aria-hidden="true"></span>
+                <span class="top-pick-copy">
+                  <span class="top-pick-label">Top pick · #{i + 1}</span>
+                  <span class="top-pick-name">{video.title}</span>
+                  <span class="top-pick-artist">All For Ummah</span>
+                </span>
+                <span class="top-pick-play" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 459 459"
+                    fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M229.5,0C102.751,0,0,102.751,0,229.5S102.751,459,229.5,459S459,356.249,459,229.5S356.249,0,229.5,0z M310.292,239.651 l-111.764,76.084c-3.761,2.56-8.63,2.831-12.652,0.704c-4.022-2.128-6.538-6.305-6.538-10.855V153.416 c0-4.55,2.516-8.727,6.538-10.855c4.022-2.127,8.891-1.857,12.652,0.704l111.764,76.084c3.359,2.287,5.37,6.087,5.37,10.151 C315.662,233.564,313.652,237.364,310.292,239.651z"
+                    />
+                  </svg>
+                </span>
+              </a>
+            {/each}
+          </div>
+        </div>
       </div>
     </section>
 
@@ -49,7 +87,11 @@
             <h2 class="catalog-row-title">{section.label}</h2>
             <div class="catalog-track">
               {#each section.videos as video}
-                <a class="catalog-card" href="/discoversong/{video.id}">
+                <a
+                  class="catalog-card"
+                  href="/discoversong"
+                  onclick={(event) => onSongClick(event, video)}
+                >
                   <span class="catalog-card-media">
                     <img
                       class="catalog-card-thumb"

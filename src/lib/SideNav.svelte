@@ -6,15 +6,40 @@
     setSideNavOpen,
     initSideNav,
   } from './sideNavState.svelte.js';
+  import { navigate } from './playerState.svelte.js';
 
   /** @type {{ path?: string }} */
   let { path = '/' } = $props();
 
   const open = $derived(sideNav.open);
+  const isHome = $derived(path === '/');
   const isSongs = $derived(path === '/discoversong' || path.startsWith('/discoversong/'));
+
+  /** @param {MouseEvent} event @param {string} href */
+  function go(event, href) {
+    event.preventDefault();
+    setSideNavOpen(false);
+    navigate(href);
+  }
 
   onMount(() => {
     initSideNav();
+
+    /** @param {KeyboardEvent} event */
+    function onKey(event) {
+      if (event.key === 'Escape' && sideNav.open) {
+        setSideNavOpen(false);
+      }
+    }
+
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
+  $effect(() => {
+    if (typeof document === 'undefined') return;
+    document.body.classList.toggle('side-nav-lock', open);
+    return () => document.body.classList.remove('side-nav-lock');
   });
 </script>
 
@@ -26,7 +51,6 @@
     aria-expanded={open}
     aria-controls="side-nav-panel"
     aria-label={open ? 'Close menu' : 'Open menu'}
-    title={open ? 'Close' : 'Menu'}
   >
     <span class="side-nav-header-btn-bars" aria-hidden="true">
       <span></span>
@@ -35,18 +59,45 @@
     </span>
   </button>
 
-  <nav id="side-nav-panel" class="side-nav-panel" aria-label="Page navigation" inert={!open}>
-    <ul class="side-nav-list">
-      <li>
-        <a
-          class="side-nav-link"
-          class:is-active={isSongs}
-          href="/discoversong"
-          onclick={() => setSideNavOpen(false)}
-        >
-          Songs
-        </a>
-      </li>
-    </ul>
+  <button
+    type="button"
+    class="side-nav-backdrop"
+    aria-label="Close menu"
+    tabindex={open ? 0 : -1}
+    onclick={() => setSideNavOpen(false)}
+  ></button>
+
+  <nav id="side-nav-panel" class="side-nav-panel" aria-label="Site navigation" inert={!open}>
+    <div class="side-nav-panel-inner">
+      <p class="side-nav-heading">Menu</p>
+      <ul class="side-nav-list">
+        <li>
+          <a
+            class="side-nav-link"
+            class:is-active={isHome}
+            href="/"
+            onclick={(event) => go(event, '/')}
+          >
+            <span>Home</span>
+            <svg class="side-nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a
+            class="side-nav-link"
+            class:is-active={isSongs}
+            href="/discoversong"
+            onclick={(event) => go(event, '/discoversong')}
+          >
+            <span>Songs</span>
+            <svg class="side-nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </div>
   </nav>
 </div>
