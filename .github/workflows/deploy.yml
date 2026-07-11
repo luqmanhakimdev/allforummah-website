@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      deployments: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,13 +31,25 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy to Cloudflare
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          packageManager: npm
-          command: deploy
+      - name: Verify API token secret
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN secret is empty or missing"
+            exit 1
+          fi
+          echo "CLOUDFLARE_API_TOKEN is present"
+          echo "Using account_id from wrangler.toml (explicit Account ID approach)"
         env:
-          # wrangler-action@v3 still runs on Node 20; allow until action upgrades
-          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Verify build output
+        run: ls -la dist && test -f dist/index.html
+
+      # Account ID comes from wrangler.toml account_id=
+      # CLOUDFLARE_ACCOUNT_ID is also set as a backup for Account-scoped tokens
+      - name: Deploy to Cloudflare
+        run: npx wrangler deploy --config wrangler.toml
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Explicit Account ID (Approach 1) — required for Account-scoped tokens
+          CLOUDFLARE_ACCOUNT_ID: 3f9e5456f446737d1fcd0178ddd6257c

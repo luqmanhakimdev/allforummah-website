@@ -26,27 +26,33 @@ Output goes to `dist/`.
 
 Build runs on GitHub runners, then uploads to Cloudflare Workers (static assets).
 
-1. Create a Cloudflare API token: [API Tokens](https://dash.cloudflare.com/profile/api-tokens) → **Create Token** → **Create Custom Token**:
+1. Create an **Account-scoped** Cloudflare API token:
+   [API Tokens](https://dash.cloudflare.com/profile/api-tokens) → **Create Token** → **Create Custom Token**:
 
 | Permission | Access |
 |---|---|
 | Account → Workers Scripts | Edit |
-| Account → Workers KV Storage | Edit |
 | Account → Account Settings | Read |
-| User → User Details | Read |
 
-Or use the **Edit Cloudflare Workers** template, then confirm it includes **Workers Scripts:Edit**.
+Under **Account Resources**, select your account only.  
+Do **not** rely on User → Memberships → Read (Account-scoped tokens cannot have it).
 
-2. In GitHub repo → **Settings** → **Secrets and variables** → **Actions**, add/update:
+2. Account ID is already set explicitly in `wrangler.toml`:
+
+```toml
+account_id = "3f9e5456f446737d1fcd0178ddd6257c"
+```
+
+This skips Wrangler’s `/memberships` auto-discovery.
+
+3. In GitHub → **Settings** → **Secrets and variables** → **Actions**:
 
 | Secret | Value |
 |---|---|
-| `CLOUDFLARE_API_TOKEN` | The new token (replace any old/wrong token) |
-| `CLOUDFLARE_ACCOUNT_ID` | `3f9e5456f446737d1fcd0178ddd6257c` |
+| `CLOUDFLARE_API_TOKEN` | Your Account-scoped token |
+| `CLOUDFLARE_ACCOUNT_ID` | `3f9e5456f446737d1fcd0178ddd6257c` (optional backup; also in wrangler.toml) |
 
-Auth error `10000` almost always means the token is missing **Workers Scripts Edit**, or the secret value is wrong/expired.
-
-3. Push to `main` (or run the workflow manually under **Actions**).
+4. Push to `main` (or run the workflow manually under **Actions**).
 
 Workflow file: `.github/workflows/deploy.yml`
 

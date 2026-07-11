@@ -1,5 +1,8 @@
 # Cloudflare Workers static assets
 # https://developers.cloudflare.com/workers/static-assets/
+#
+# account_id is set explicitly so Account-scoped API tokens work
+# (they cannot call /memberships for auto-discovery).
 
 name = "allforummah-website"
 account_id = "3f9e5456f446737d1fcd0178ddd6257c"
