@@ -354,11 +354,11 @@
         <div class="about-body">
           <p class="about-text">
             All For Ummah is a group of musicians and singers active in Malaysia.
-            They perform Malay nasyid songs and have represented SMA Persekutuan
+            They perform nasyid songs and have represented SMA Persekutuan
             Kajang in secondary school nasyid competitions. The group was once
             feared by other school nasyid ensembles for its achievements, and won
             the national secondary school nasyid title at FNKSS KPM (Festival
-            Nasyid dan Khat Sekolah-Sekolah Kementerian Pendidikan Malaysia) three
+            Nasyid Sekolah-Sekolah Kementerian Pendidikan Malaysia) three
             years in a row — 2004, 2005, and 2006.
           </p>
 
