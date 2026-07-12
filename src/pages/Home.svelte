@@ -427,7 +427,7 @@
           <p class="discover-text">
             Listen to All For Ummah recordings — from familiar songs to newer ones.
           </p>
-          <a class="discover-cta" href="/discoversong" onclick={(event) => go(event, '/discoversong')}>Song collection</a>
+          <a class="discover-cta" href="/discoversong" onclick={(event) => go(event, '/discoversong')}>Tune In</a>
         </div>
       </div>
     </section>
