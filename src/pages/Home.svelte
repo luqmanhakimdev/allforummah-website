@@ -45,42 +45,12 @@
     navigate(href);
   }
 
-  /** @type {HTMLElement | undefined} */
-  let heroCountdownEl;
-  /** @type {HTMLElement | undefined} */
-  let headerCountdownSlot;
-
-  let countdownStyle = $state('');
-  let flying = $state(false);
   let headerContentOpacity = $state(0);
-
-  /** @param {number} a @param {number} b @param {number} t */
-  function lerp(a, b, t) {
-    return a + (b - a) * t;
-  }
-
-  /** @param {number} t */
-  function easeOutCubic(t) {
-    return 1 - Math.pow(1 - t, 3);
-  }
 
   /** @param {number} edge0 @param {number} edge1 @param {number} x */
   function smoothstep(edge0, edge1, x) {
     const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
     return t * t * (3 - 2 * t);
-  }
-
-  /**
-   * @param {HTMLElement} el
-   */
-  function docBox(el) {
-    const r = el.getBoundingClientRect();
-    return {
-      top: r.top + window.scrollY,
-      left: r.left + window.scrollX,
-      width: r.width,
-      height: r.height,
-    };
   }
 
   /** @type {HTMLVideoElement | undefined} */
@@ -121,87 +91,27 @@
     heroVideoEl?.addEventListener('loadeddata', tryPlayHeroVideo);
     document.addEventListener('touchstart', tryPlayHeroVideo, { once: true, passive: true });
 
-    /** @type {ReturnType<typeof docBox> | null} */
-    let countdownStart = null;
     let ticking = false;
 
-    function measureStarts() {
-      if (!heroCountdownEl) return;
-      countdownStart = docBox(heroCountdownEl);
-    }
-
-    function updateMorph() {
+    function updateHeader() {
       const range = Math.min(window.innerHeight * 0.72, 560);
       const raw = Math.min(1, Math.max(0, window.scrollY / range));
-      const p = easeOutCubic(raw);
       progress = raw;
-
-      if (raw <= 0.002) {
-        flying = false;
-        countdownStyle = '';
-        headerContentOpacity = 0;
-        measureStarts();
-        ticking = false;
-        return;
-      }
-
-      if (!countdownStart) measureStarts();
-      if (!countdownStart || !headerCountdownSlot) {
-        ticking = false;
-        return;
-      }
-
-      flying = true;
-
-      const countdownEnd = headerCountdownSlot.getBoundingClientRect();
-      const shrinkP = Math.pow(raw, 0.62);
-
-      const startCountTop = countdownStart.top - window.scrollY;
-      const startCountLeft = countdownStart.left - window.scrollX;
-      const countScale = lerp(
-        1,
-        Math.min(countdownEnd.height / countdownStart.height, 0.35),
-        shrinkP,
-      );
-      const countCX = lerp(
-        startCountLeft + countdownStart.width / 2,
-        countdownEnd.left + countdownEnd.width / 2,
-        p,
-      );
-      const countCY = lerp(
-        startCountTop + countdownStart.height / 2,
-        countdownEnd.top + countdownEnd.height / 2,
-        p,
-      );
-
-      const flyOpacity = 1 - smoothstep(0.08, 0.55, raw);
       headerContentOpacity = smoothstep(0.25, 0.7, raw);
-
-      countdownStyle = [
-        `top:${countCY}px`,
-        `left:${countCX}px`,
-        `transform:translate(-50%, -50%) scale(${countScale})`,
-        `transform-origin:center center`,
-        `opacity:${flyOpacity}`,
-      ].join(';');
-
       ticking = false;
     }
 
     function onScroll() {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(updateMorph);
+      requestAnimationFrame(updateHeader);
     }
 
     function onResize() {
-      countdownStart = null;
-      measureStarts();
-      updateMorph();
+      updateHeader();
     }
 
-    measureStarts();
-    updateMorph();
+    updateHeader();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
 
@@ -248,11 +158,7 @@
       </span>
       <span class="site-header-script">Sebuah Perjalanan</span>
     </a>
-    <div
-      class="site-header-countdown site-header-slot"
-      bind:this={headerCountdownSlot}
-      aria-label="Countdown to 2028"
-    >
+    <div class="site-header-countdown site-header-slot" aria-label="Countdown to 2028">
       <div class="site-header-unit">
         <span class="site-header-value">{clock.days}</span>
         <span class="site-header-label">D</span>
@@ -272,32 +178,6 @@
     </div>
   </header>
 
-  <div
-    class="fly-countdown"
-    class:is-flying={flying}
-    style={countdownStyle}
-    aria-hidden="true"
-  >
-    <div class="countdown">
-      <div class="countdown-unit">
-        <span class="countdown-value">{clock.days}</span>
-        <span class="countdown-label">Days</span>
-      </div>
-      <div class="countdown-unit">
-        <span class="countdown-value">{clock.hours}</span>
-        <span class="countdown-label">Hours</span>
-      </div>
-      <div class="countdown-unit">
-        <span class="countdown-value">{clock.minutes}</span>
-        <span class="countdown-label">Minutes</span>
-      </div>
-      <div class="countdown-unit">
-        <span class="countdown-value">{clock.seconds}</span>
-        <span class="countdown-label">Seconds</span>
-      </div>
-    </div>
-  </div>
-
   <main>
     <section class="hero">
       <div class="hero-content">
@@ -312,12 +192,7 @@
             </span>
           </h1>
 
-          <div
-            class="countdown"
-            class:is-placeholder={flying}
-            bind:this={heroCountdownEl}
-            aria-label="Countdown to 2028"
-          >
+          <div class="countdown" aria-label="Countdown to 2028">
             <div class="countdown-unit">
               <span class="countdown-value">{clock.days}</span>
               <span class="countdown-label">Days</span>

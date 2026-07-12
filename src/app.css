@@ -229,30 +229,10 @@ body {
   color: var(--text-muted);
 }
 
-/* Flying morph copies */
-.fly-countdown {
-  position: fixed;
-  z-index: 50;
-  margin: 0;
-  opacity: 0;
-  pointer-events: none;
-  will-change: transform, top, left, opacity;
-  white-space: nowrap;
-}
-
-.fly-countdown .countdown {
-  margin-top: 0;
-}
-
 .hero-brand {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.countdown.is-placeholder {
-  visibility: hidden;
-  pointer-events: none;
 }
 
 /* Hero */
