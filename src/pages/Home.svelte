@@ -343,8 +343,12 @@
             <button type="button" class="hero-tickets">
               Get tickets
             </button>
-            <a class="hero-discover" href="#about">
-              Discover more
+            <a
+              class="hero-discover"
+              href="/discoversong"
+              onclick={(event) => go(event, '/discoversong')}
+            >
+              Discover songs
             </a>
           </div>
         </div>
