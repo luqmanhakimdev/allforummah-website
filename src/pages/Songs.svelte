@@ -60,7 +60,7 @@
                 <span class="top-pick-copy">
                   <span class="top-pick-label">Top pick · #{i + 1}</span>
                   <span class="top-pick-name">{video.title}</span>
-                  <span class="top-pick-artist">All For Ummah</span>
+                  <span class="top-pick-views">{video.viewsLabel} views</span>
                 </span>
                 <span class="top-pick-play" aria-hidden="true">
                   <svg

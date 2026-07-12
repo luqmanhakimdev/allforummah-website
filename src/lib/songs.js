@@ -215,19 +215,43 @@ export function getPlaylistByYear() {
 }
 
 /**
+ * Format YouTube views as a rounded xx.xK / xx.xM label.
+ * @param {number} count
+ */
+export function formatViewCount(count) {
+  if (!Number.isFinite(count) || count < 0) return '0';
+  if (count < 1000) return String(Math.round(count));
+  if (count < 1_000_000) {
+    const value = Math.round((count / 1000) * 10) / 10;
+    return `${value.toFixed(1)}K`;
+  }
+  const value = Math.round((count / 1_000_000) * 10) / 10;
+  return `${value.toFixed(1)}M`;
+}
+
+/**
  * Top picks by YouTube view count (playlist PL92BFBBF327B474AF, checked Jul 2026).
- * @returns {PlaylistVideo[]}
+ * @returns {(PlaylistVideo & { views: number, viewsLabel: string })[]}
  */
 export function getTopPicks() {
-  const ids = [
-    '-_FMjiXUACU',
-    'UZB5sXAC1Qc',
-    'jE1IazI8rN8',
-    'F6jYjtObBdw',
-    'm_yu8RltOdc',
+  /** @type {{ id: string, views: number }[]} */
+  const picks = [
+    { id: '-_FMjiXUACU', views: 86187 },
+    { id: 'UZB5sXAC1Qc', views: 34558 },
+    { id: 'jE1IazI8rN8', views: 32451 },
+    { id: 'F6jYjtObBdw', views: 31597 },
+    { id: 'm_yu8RltOdc', views: 30835 },
   ];
-  return ids.flatMap((id) => {
-    const video = getPlaylistVideo(id);
-    return video ? [video] : [];
+
+  return picks.flatMap((pick) => {
+    const video = getPlaylistVideo(pick.id);
+    if (!video) return [];
+    return [
+      {
+        ...video,
+        views: pick.views,
+        viewsLabel: formatViewCount(pick.views),
+      },
+    ];
   });
 }

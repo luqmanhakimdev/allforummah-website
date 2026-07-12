@@ -91,6 +91,8 @@
     heroVideoEl.muted = true;
     heroVideoEl.defaultMuted = true;
     heroVideoEl.setAttribute('muted', '');
+    heroVideoEl.setAttribute('playsinline', '');
+    heroVideoEl.setAttribute('webkit-playsinline', '');
     const play = heroVideoEl.play();
     if (play && typeof play.catch === 'function') {
       play.catch(() => {
@@ -223,7 +225,6 @@
       muted
       loop
       playsinline
-      webkit-playsinline
       preload="auto"
       disablepictureinpicture
     ></video>
@@ -338,6 +339,14 @@
 
         <div class="hero-social" style="opacity: {Math.max(0, 1 - progress * 1.4)}">
           <SocialLinks iconsOnly />
+          <div class="hero-actions">
+            <button type="button" class="hero-tickets">
+              Get tickets
+            </button>
+            <a class="hero-discover" href="#about">
+              Discover more
+            </a>
+          </div>
         </div>
       </div>
     </section>
