@@ -6,23 +6,9 @@ export const playlist = {
   url: 'https://www.youtube.com/playlist?list=PL92BFBBF327B474AF',
 };
 
-export const LYRICS_PLACEHOLDER = `[Lyrics coming soon]
+export const LYRICS_PLACEHOLDER = `Lyrics coming soon
 
-Verse 1
-—
-—
-
-Chorus
-—
-—
-
-Verse 2
-—
-—
-
-Chorus
-—
-—`;
+`;
 
 /** Strip shared leading indent so template-string formatting stays left-aligned. */
 /** @param {string} text */
@@ -174,6 +160,46 @@ Jadi tauladan`,
     title: 'Ketiga KDSS Selangor 2016 I All For Ummah (SMAPK)',
     year: 2016,
   },
+  {
+    id: '8QZ_rurF6Uw',
+    title: 'FNSS Selangor 2017 I ALL FOR UMMAH',
+    year: 2017,
+  },
+  {
+    id: 'qCMwtDeMb-A',
+    title: 'All For Ummah | Johan Pertandingan Nasyid Berirama UKM@Sekolah 2018(Abdi Abadi)',
+    year: 2018,
+  },
+  {
+    id: 'pw231rRnWDk',
+    title: 'FNSS Hulu Langat 2019 l ALL FOR UMMAH',
+    year: 2019,
+  },
+  {
+    id: 'ThpL1ByOovQ',
+    title: 'Naib Johan | MQSS Daerah Hulu Langat 2024 | All For Ummah | SMAP Kajang | Lagu 1',
+    year: 2024,
+  },
+  {
+    id: 'SN9sWlJueA8',
+    title: 'Naib Johan | MQSS Daerah Hulu Langat 2024 | All For Ummah | SMAP Kajang | Lagu 2',
+    year: 2024,
+  },
+  {
+    id: 'zW2j_G9kD34',
+    title: 'ALL FOR UMMAH | NAIB JOHAN FNKSS DAERAH HULU LANGAT | ADNI 2025',
+    year: 2025,
+  },
+  {
+    id: '27vRAB042W8',
+    title: 'ALL FOR UMMAH | FENAS 2026',
+    year: 2026,
+  },
+  {
+    id: 'XUqW4LcY9wM',
+    title: 'ALL FOR UMMAH | JOHAN NASYID MAHRAJAN ADAB DAN NILAI ZON TENGAH KAJANG 2026',
+    year: 2026,
+  },
 ];
 
 /** @param {string} id */
@@ -181,33 +207,52 @@ export function getPlaylistVideo(id) {
   return playlistVideos.find((video) => video.id === id) ?? null;
 }
 
+/** @type {{ label: string, from: number, to: number }[]} */
+const YEAR_RANGES = [
+  { label: '2021–2026', from: 2021, to: 2026 },
+  { label: '2016–2020', from: 2016, to: 2020 },
+  { label: '2011–2015', from: 2011, to: 2015 },
+  { label: '2004–2010', from: 2004, to: 2010 },
+];
+
 /**
  * @returns {{ label: string, year: number | null, videos: PlaylistVideo[] }[]}
  */
 export function getPlaylistByYear() {
-  /** @type {Map<number | 'other', PlaylistVideo[]>} */
-  const groups = new Map();
+  /** @type {PlaylistVideo[]} */
+  const other = [];
+
+  /** @type {Map<string, PlaylistVideo[]>} */
+  const groups = new Map(YEAR_RANGES.map((range) => [range.label, []]));
 
   for (const video of playlistVideos) {
-    const key = video.year ?? 'other';
-    const list = groups.get(key) ?? [];
-    list.push(video);
-    groups.set(key, list);
+    if (video.year == null) {
+      other.push(video);
+      continue;
+    }
+
+    const range = YEAR_RANGES.find(
+      (entry) => video.year >= entry.from && video.year <= entry.to,
+    );
+
+    if (!range) {
+      other.push(video);
+      continue;
+    }
+
+    groups.get(range.label)?.push(video);
   }
 
-  const years = [...groups.keys()]
-    .filter((key) => key !== 'other')
-    .sort((a, b) => Number(b) - Number(a));
-
   /** @type {{ label: string, year: number | null, videos: PlaylistVideo[] }[]} */
-  const sections = years.map((year) => ({
-    label: String(year),
-    year: Number(year),
-    videos: groups.get(year) ?? [],
-  }));
+  const sections = YEAR_RANGES.flatMap((range) => {
+    const videos = [...(groups.get(range.label) ?? [])].sort(
+      (a, b) => (b.year ?? 0) - (a.year ?? 0),
+    );
+    if (!videos.length) return [];
+    return [{ label: range.label, year: range.to, videos }];
+  });
 
-  const other = groups.get('other');
-  if (other?.length) {
+  if (other.length) {
     sections.push({ label: 'Others', year: null, videos: other });
   }
 
