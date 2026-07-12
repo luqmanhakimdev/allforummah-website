@@ -11,10 +11,88 @@
 
   /** @type {HTMLElement | undefined} */
   let barEl;
+  /** @type {HTMLElement | undefined} */
+  let titleWrapEl;
+  /** @type {HTMLElement | undefined} */
+  let titleEl;
+
+  let titleOverflows = $state(false);
+  let titleScrolling = $state(false);
+  let marqueeOffset = $state(0);
+  let marqueeDuration = $state(8);
+  let marqueeIterations = $state(2);
+
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  let marqueeRestartTimer;
 
   const open = $derived(player.open && player.video);
   const video = $derived(player.video);
   const expanded = $derived(player.expanded);
+
+  function prefersReducedMotion() {
+    return (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+  }
+
+  function hasFineHover() {
+    return (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    );
+  }
+
+  function measureTitle() {
+    if (!titleWrapEl || !titleEl) {
+      titleOverflows = false;
+      titleScrolling = false;
+      marqueeOffset = 0;
+      return;
+    }
+
+    const overflow = titleEl.scrollWidth - titleWrapEl.clientWidth;
+    if (overflow > 1) {
+      titleOverflows = true;
+      marqueeOffset = overflow;
+      marqueeDuration = Math.max(7, Math.min(16, 5 + overflow / 28));
+    } else {
+      titleOverflows = false;
+      titleScrolling = false;
+      marqueeOffset = 0;
+    }
+  }
+
+  /** @param {number} [iterations] */
+  function startTitleMarquee(iterations = 2) {
+    if (!titleOverflows || prefersReducedMotion()) return;
+
+    marqueeIterations = iterations;
+    titleScrolling = false;
+    clearTimeout(marqueeRestartTimer);
+    // Retrigger CSS animation by toggling the class off → on
+    marqueeRestartTimer = setTimeout(() => {
+      if (!titleOverflows || prefersReducedMotion()) return;
+      titleScrolling = true;
+    }, 20);
+  }
+
+  /** @param {AnimationEvent} event */
+  function onTitleAnimationEnd(event) {
+    if (event.animationName !== 'ytm-title-marquee') return;
+    titleScrolling = false;
+  }
+
+  function onTitleMouseEnter() {
+    if (!hasFineHover()) return;
+    if (!titleOverflows || titleScrolling) return;
+    startTitleMarquee(1);
+  }
+
+  function onTitleFocus() {
+    if (!titleOverflows || titleScrolling) return;
+    startTitleMarquee(1);
+  }
 
   $effect(() => {
     playerMount.miniBar = barEl ?? null;
@@ -33,13 +111,42 @@
     };
   });
 
+  $effect(() => {
+    // New track: measure, then run a short intro marquee if truncated
+    void video?.title;
+    const frame = requestAnimationFrame(() => {
+      measureTitle();
+      if (titleOverflows) startTitleMarquee(2);
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(marqueeRestartTimer);
+    };
+  });
+
+  $effect(() => {
+    if (!titleWrapEl || !titleEl) return;
+
+    const observer = new ResizeObserver(() => measureTitle());
+    observer.observe(titleWrapEl);
+    observer.observe(titleEl);
+    measureTitle();
+
+    return () => observer.disconnect();
+  });
+
   onMount(() => {
     /** @param {KeyboardEvent} event */
     function onKey(event) {
       if (event.key === 'Escape' && player.expanded) collapsePlayer();
     }
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener('resize', measureTitle);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', measureTitle);
+      clearTimeout(marqueeRestartTimer);
+    };
   });
 
   /** @param {MouseEvent} event */
@@ -114,6 +221,8 @@
         type="button"
         class="ytm-bar-main"
         onclick={onBarClick}
+        onmouseenter={onTitleMouseEnter}
+        onfocus={onTitleFocus}
         aria-label="Open lyrics for {video.title}"
       >
         <img
@@ -122,7 +231,22 @@
           alt=""
         />
         <span class="ytm-bar-text">
-          <span class="ytm-bar-title">{video.title}</span>
+          <span
+            class="ytm-bar-title-wrap"
+            class:is-overflowing={titleOverflows}
+            class:is-scrolling={titleScrolling}
+            bind:this={titleWrapEl}
+          >
+            <span
+              class="ytm-bar-title"
+              class:is-scrolling={titleScrolling}
+              style:--marquee-offset="-{marqueeOffset}px"
+              style:--marquee-duration="{marqueeDuration}s"
+              style:--marquee-iterations={marqueeIterations}
+              bind:this={titleEl}
+              onanimationend={onTitleAnimationEnd}
+            >{video.title}</span>
+          </span>
           <span class="ytm-bar-hint">Lyrics available</span>
         </span>
       </button>
