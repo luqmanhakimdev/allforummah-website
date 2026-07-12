@@ -394,6 +394,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   padding: 0.85rem 1.5rem;
   border: 1px solid var(--text);
   background: var(--text);
@@ -403,6 +404,7 @@ body {
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.04em;
+  line-height: 1.2;
   cursor: default;
   white-space: nowrap;
   transition: color 0.2s, background 0.2s, border-color 0.2s;
@@ -427,6 +429,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   padding: 0.85rem 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.55);
   background: transparent;
@@ -435,6 +438,7 @@ body {
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.04em;
+  line-height: 1.2;
   white-space: nowrap;
   transition: color 0.2s, background 0.2s, border-color 0.2s;
 }
@@ -2303,16 +2307,16 @@ body.player-expanded {
 
   .hero-actions {
     flex-direction: column;
-    align-items: center;
-    width: 100%;
+    align-items: stretch;
+    width: min(100%, 14rem);
+    margin-inline: auto;
     gap: 0.7rem;
   }
 
   .hero-tickets,
   .hero-discover {
-    width: auto;
-    min-width: 0;
-    flex: none;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .headline {
