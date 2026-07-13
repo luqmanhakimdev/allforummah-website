@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import Home from './pages/Home.svelte';
   import Songs from './pages/Songs.svelte';
+  import Blog from './pages/Blog.svelte';
+  import BlogPost from './pages/BlogPost.svelte';
   import SideNav from './lib/SideNav.svelte';
   import MiniPlayer from './lib/MiniPlayer.svelte';
   import LyricsWindow from './lib/LyricsWindow.svelte';
@@ -30,6 +32,12 @@
   }
 
   /** @param {string} nextPath */
+  function blogSlug(nextPath) {
+    if (!nextPath.startsWith('/blog/')) return '';
+    return decodeURIComponent(nextPath.slice('/blog/'.length));
+  }
+
+  /** @param {string} nextPath */
   function applySeo(nextPath) {
     if (nextPath === '/discoversong') {
       setPageMeta({
@@ -38,6 +46,19 @@
           'Discover All For Ummah songs and performances — recordings, festival nasyid, and top picks from YouTube.',
         path: '/discoversong',
       });
+      return;
+    }
+    if (nextPath === '/blog') {
+      setPageMeta({
+        title: 'Blog',
+        description:
+          'Stories and nasyid insights from All For Ummah — Sebuah Perjalanan.',
+        path: '/blog',
+      });
+      return;
+    }
+    if (nextPath.startsWith('/blog/')) {
+      // BlogPost sets its own meta after the CMS response loads.
       return;
     }
     setPageMeta({
@@ -49,6 +70,8 @@
   let path = $state(
     resolvePath(typeof window !== 'undefined' ? window.location.pathname : '/'),
   );
+
+  const postSlug = $derived(blogSlug(path));
 
   $effect(() => {
     applySeo(path);
@@ -67,6 +90,10 @@
 <div class="app-shell" class:has-mini-player={player.open}>
   {#if path === '/discoversong'}
     <Songs />
+  {:else if path === '/blog'}
+    <Blog />
+  {:else if postSlug}
+    <BlogPost slug={postSlug} />
   {:else}
     <Home />
   {/if}

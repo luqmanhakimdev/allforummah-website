@@ -37,5 +37,14 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [svelte(), siteUrlPlugin(siteUrl)],
+    server: {
+      proxy: {
+        '/api/cms': {
+          target: 'https://cms.allforummah.com',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/cms/, '/api'),
+        },
+      },
+    },
   }
 })
