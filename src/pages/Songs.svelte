@@ -1,5 +1,4 @@
 <script>
-  import { onMount } from 'svelte';
   import SocialLinks from '../lib/SocialLinks.svelte';
   import PageHeader from '../lib/PageHeader.svelte';
   import { playlist, getPlaylistByYear, getTopPicks } from '../lib/songs.js';
@@ -13,10 +12,6 @@
     event.preventDefault();
     playSong(video, { openLyrics: true });
   }
-
-  onMount(() => {
-    document.title = 'Song Collection — All For Ummah';
-  });
 </script>
 
 <div class="page songs-page">
@@ -67,7 +62,7 @@
                 <img
                   class="top-pick-image"
                   src="https://i.ytimg.com/vi/{video.id}/hqdefault.jpg"
-                  alt=""
+                  alt="{video.title} — All For Ummah"
                   loading="lazy"
                 />
                 <span class="top-pick-shade" aria-hidden="true"></span>
@@ -110,7 +105,7 @@
                     <img
                       class="catalog-card-thumb"
                       src="https://i.ytimg.com/vi/{video.id}/hqdefault.jpg"
-                      alt=""
+                      alt="{video.title} — All For Ummah"
                       loading="lazy"
                     />
                     <span class="catalog-card-play" aria-hidden="true">

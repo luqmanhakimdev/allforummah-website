@@ -7,7 +7,7 @@
     class="social-link"
     href="https://www.facebook.com/AFUmusic"
     target="_blank"
-    rel="noreferrer"
+    rel="noopener noreferrer"
     aria-label="Facebook"
   >
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -23,7 +23,7 @@
     class="social-link"
     href="https://www.instagram.com/allforummahofficial/"
     target="_blank"
-    rel="noreferrer"
+    rel="noopener noreferrer"
     aria-label="Instagram"
   >
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -39,7 +39,7 @@
     class="social-link"
     href="https://www.tiktok.com/@allforummah"
     target="_blank"
-    rel="noreferrer"
+    rel="noopener noreferrer"
     aria-label="TikTok"
   >
     <svg class="icon-tiktok" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -55,7 +55,7 @@
     class="social-link"
     href="https://www.youtube.com/@AllForUmmah"
     target="_blank"
-    rel="noreferrer"
+    rel="noopener noreferrer"
     aria-label="YouTube"
   >
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
