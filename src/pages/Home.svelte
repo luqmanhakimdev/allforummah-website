@@ -57,11 +57,6 @@
     formatPostDate(featuredFields.publishedAt, featuredPost?.created_at),
   );
   const featuredExcerpt = $derived(excerptFrom(featuredFields));
-  const featuredHref = $derived(
-    featuredPost
-      ? `/blog/${encodeURIComponent(featuredPost.slug || featuredPost.id)}`
-      : '/blog',
-  );
 
   /** @param {MouseEvent} event @param {string} href */
   function go(event, href) {
@@ -359,7 +354,7 @@
           <p class="home-blog-label">Blog</p>
           <h2 class="home-blog-title">Stories and Nasyid Insights</h2>
           <p class="home-blog-text">
-            Read about nasyid, competitions, and the All For Ummah journey.
+            Read about music, nasyid, competitions and All For Ummah journey.
           </p>
           <a class="home-blog-cta" href="/blog" onclick={(event) => go(event, '/blog')}>
             View blog
@@ -374,8 +369,8 @@
           {:else if featuredPost}
             <a
               class="home-blog-feature-link"
-              href={featuredHref}
-              onclick={(event) => go(event, featuredHref)}
+              href="/blog"
+              onclick={(event) => go(event, '/blog')}
             >
               {#if featuredImage}
                 <span class="home-blog-feature-media">
@@ -383,6 +378,7 @@
                 </span>
               {/if}
               <span class="home-blog-feature-body">
+                <span class="home-blog-feature-tag">Latest</span>
                 {#if featuredDate}
                   <time class="home-blog-feature-date" datetime={featuredFields.publishedAt || ''}>
                     {featuredDate}
@@ -392,7 +388,6 @@
                 {#if featuredExcerpt}
                   <span class="home-blog-feature-excerpt">{featuredExcerpt}</span>
                 {/if}
-                <span class="home-blog-feature-more">Read article</span>
               </span>
             </a>
           {:else}
