@@ -9,23 +9,85 @@
     formatPostDate,
   } from '../lib/cms.js';
 
+  const PAGE_SIZE = 5;
+
   /** @type {'loading' | 'ready' | 'error'} */
   let status = $state('loading');
   /** @type {import('../lib/cms.js').CmsEntry[]} */
   let posts = $state([]);
   let errorMessage = $state('');
+  let page = $state(1);
 
-  const featured = $derived(posts[0] || null);
-  const morePosts = $derived(posts.slice(1));
+  const totalPages = $derived(Math.max(1, Math.ceil(posts.length / PAGE_SIZE)));
+  const pagePosts = $derived(posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE));
+  const featured = $derived(pagePosts[0] || null);
+  const morePosts = $derived(pagePosts.slice(1));
+  const pageNumbers = $derived(
+    Array.from({ length: totalPages }, (_, index) => index + 1),
+  );
 
-  onMount(async () => {
-    try {
-      posts = await listBlogPosts();
-      status = 'ready';
-    } catch (err) {
-      status = 'error';
-      errorMessage = err instanceof Error ? err.message : 'Failed to load blog.';
-    }
+  /** @param {string | null | undefined} value */
+  function parsePage(value) {
+    const parsed = Number.parseInt(value || '1', 10);
+    if (!Number.isFinite(parsed) || parsed < 1) return 1;
+    return parsed;
+  }
+
+  /** @param {number} nextPage */
+  function clampPage(nextPage) {
+    return Math.min(Math.max(1, nextPage), totalPages);
+  }
+
+  function readPageFromUrl() {
+    if (typeof window === 'undefined') return 1;
+    return parsePage(new URL(window.location.href).searchParams.get('page'));
+  }
+
+  /** @param {number} nextPage @param {{ replace?: boolean }} [opts] */
+  function setPage(nextPage, opts = {}) {
+    const target = clampPage(nextPage);
+    page = target;
+
+    if (typeof window === 'undefined') return;
+
+    const url = new URL(window.location.href);
+    if (target <= 1) url.searchParams.delete('page');
+    else url.searchParams.set('page', String(target));
+
+    const next = `${url.pathname}${url.search}${url.hash}`;
+    if (opts.replace) history.replaceState({}, '', next);
+    else history.pushState({}, '', next);
+  }
+
+  /** @param {number} nextPage */
+  function goToPage(nextPage) {
+    if (nextPage === page || nextPage < 1 || nextPage > totalPages) return;
+    setPage(nextPage);
+    const list = document.querySelector('.blog-list');
+    list?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  onMount(() => {
+    page = readPageFromUrl();
+
+    const onPop = () => {
+      page = clampPage(readPageFromUrl());
+    };
+    window.addEventListener('popstate', onPop);
+
+    void (async () => {
+      try {
+        posts = await listBlogPosts();
+        status = 'ready';
+        // Clamp after totalPages is known.
+        setPage(page, { replace: true });
+      } catch (err) {
+        status = 'error';
+        errorMessage = err instanceof Error ? err.message : 'Failed to load blog.';
+      }
+    })();
+
+    return () => window.removeEventListener('popstate', onPop);
   });
 
   /** @param {MouseEvent} event @param {string} href */
@@ -114,6 +176,42 @@
               </li>
             {/each}
           </ul>
+
+          {#if totalPages > 1}
+            <nav class="blog-pagination" aria-label="Blog pagination">
+              <button
+                type="button"
+                class="blog-page-btn"
+                disabled={page <= 1}
+                onclick={() => goToPage(page - 1)}
+              >
+                Previous
+              </button>
+
+              <div class="blog-page-numbers">
+                {#each pageNumbers as n}
+                  <button
+                    type="button"
+                    class="blog-page-num"
+                    class:is-active={n === page}
+                    aria-current={n === page ? 'page' : undefined}
+                    onclick={() => goToPage(n)}
+                  >
+                    {n}
+                  </button>
+                {/each}
+              </div>
+
+              <button
+                type="button"
+                class="blog-page-btn"
+                disabled={page >= totalPages}
+                onclick={() => goToPage(page + 1)}
+              >
+                Next
+              </button>
+            </nav>
+          {/if}
         {/if}
       </div>
     </section>
