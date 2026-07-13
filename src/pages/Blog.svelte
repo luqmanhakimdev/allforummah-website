@@ -6,7 +6,6 @@
   import {
     listBlogPosts,
     cmsAssetUrl,
-    excerptFrom,
     formatPostDate,
   } from '../lib/cms.js';
 
@@ -15,6 +14,9 @@
   /** @type {import('../lib/cms.js').CmsEntry[]} */
   let posts = $state([]);
   let errorMessage = $state('');
+
+  const featured = $derived(posts[0] || null);
+  const morePosts = $derived(posts.slice(1));
 
   onMount(async () => {
     try {
@@ -31,6 +33,11 @@
     event.preventDefault();
     navigate(href);
   }
+
+  /** @param {import('../lib/cms.js').CmsEntry} post */
+  function postHref(post) {
+    return `/blog/${encodeURIComponent(post.slug || post.id)}`;
+  }
 </script>
 
 <div class="page blog-page">
@@ -44,7 +51,7 @@
         <p class="songs-label">Blog</p>
         <h1 class="songs-title">Stories and Nasyid Insights</h1>
         <p class="blog-intro">
-          Read about nasyid, competitions, and the All For Ummah journey.
+          Read about music, nasyid, competitions and All For Ummah journey.
         </p>
       </div>
     </section>
@@ -60,33 +67,48 @@
         {:else if posts.length === 0}
           <p class="blog-status">No published articles yet.</p>
         {:else}
-          <ul class="blog-cards">
-            {#each posts as post}
+          <ul class="blog-newsroom">
+            {#if featured}
+              {@const fields = featured.data || {}}
+              {@const href = postHref(featured)}
+              {@const image = cmsAssetUrl(fields.featuredImage)}
+              {@const date = formatPostDate(fields.publishedAt, featured.created_at)}
+              <li class="blog-newsroom-featured">
+                <a class="blog-tile blog-tile--featured" {href} onclick={(event) => go(event, href)}>
+                  {#if image}
+                    <span class="blog-tile-media">
+                      <img src={image} alt="" loading="eager" />
+                    </span>
+                  {/if}
+                  <span class="blog-tile-body">
+                    <span class="blog-tile-label">Article</span>
+                    <span class="blog-tile-title">{fields.title || featured.title}</span>
+                    {#if date}
+                      <time class="blog-tile-date" datetime={fields.publishedAt || ''}>{date}</time>
+                    {/if}
+                  </span>
+                </a>
+              </li>
+            {/if}
+
+            {#each morePosts as post}
               {@const fields = post.data || {}}
-              {@const href = `/blog/${encodeURIComponent(post.slug || post.id)}`}
+              {@const href = postHref(post)}
               {@const image = cmsAssetUrl(fields.featuredImage)}
               {@const date = formatPostDate(fields.publishedAt, post.created_at)}
               <li>
-                <a class="blog-card" {href} onclick={(event) => go(event, href)}>
+                <a class="blog-tile" {href} onclick={(event) => go(event, href)}>
                   {#if image}
-                    <span class="blog-card-media">
-                      <img
-                        class="blog-card-image"
-                        src={image}
-                        alt=""
-                        loading="lazy"
-                      />
+                    <span class="blog-tile-media">
+                      <img src={image} alt="" loading="lazy" />
                     </span>
                   {/if}
-                  <span class="blog-card-body">
+                  <span class="blog-tile-body">
+                    <span class="blog-tile-label">Article</span>
+                    <span class="blog-tile-title">{fields.title || post.title}</span>
                     {#if date}
-                      <time class="blog-card-date" datetime={fields.publishedAt || ''}>
-                        {date}
-                      </time>
+                      <time class="blog-tile-date" datetime={fields.publishedAt || ''}>{date}</time>
                     {/if}
-                    <span class="blog-card-title">{fields.title || post.title}</span>
-                    <span class="blog-card-excerpt">{excerptFrom(fields)}</span>
-                    <span class="blog-card-cta">Read article</span>
                   </span>
                 </a>
               </li>

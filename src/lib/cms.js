@@ -94,6 +94,22 @@ async function cmsFetch(pathWithQuery) {
 }
 
 /**
+ * @param {CmsEntry} entry
+ */
+function postTimestamp(entry) {
+  const publishedAt = entry.data?.publishedAt;
+  if (publishedAt) {
+    const raw =
+      publishedAt.includes('T') && publishedAt.length <= 16
+        ? `${publishedAt}:00`
+        : publishedAt;
+    const time = new Date(raw).getTime();
+    if (!Number.isNaN(time)) return time;
+  }
+  return entry.updated_at || entry.created_at || 0;
+}
+
+/**
  * @returns {Promise<CmsEntry[]>}
  */
 export async function listBlogPosts() {
@@ -101,7 +117,9 @@ export async function listBlogPosts() {
     await cmsFetch('/content?collectionId=blog_post')
   );
   const rows = Array.isArray(json.data) ? json.data : [];
-  return rows.filter((entry) => entry.status === 'published');
+  return rows
+    .filter((entry) => entry.status === 'published')
+    .sort((a, b) => postTimestamp(b) - postTimestamp(a));
 }
 
 /**
