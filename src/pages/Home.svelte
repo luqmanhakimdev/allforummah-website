@@ -4,6 +4,12 @@
   import { getTopPicks } from '../lib/songs.js';
   import { clock, ensureCountdown } from '../lib/countdown.svelte.js';
   import { navigate } from '../lib/playerState.svelte.js';
+  import {
+    listBlogPosts,
+    cmsAssetUrl,
+    excerptFrom,
+    formatPostDate,
+  } from '../lib/cms.js';
 
   const channelVideos = ['VmKQdOHsu7g', 'BBkJ3djILpg', 'RwUhGf8s0ZU'];
 
@@ -38,6 +44,24 @@
   let aboutIndex = $state(0);
   let discoverIndex = $state(0);
   let discoverAnimating = $state(true);
+
+  /** @type {'loading' | 'ready' | 'error'} */
+  let blogStatus = $state('loading');
+  /** @type {import('../lib/cms.js').CmsEntry | null} */
+  let featuredPost = $state(null);
+
+  const featuredFields = $derived(featuredPost?.data || {});
+  const featuredTitle = $derived(featuredFields.title || featuredPost?.title || '');
+  const featuredImage = $derived(cmsAssetUrl(featuredFields.featuredImage));
+  const featuredDate = $derived(
+    formatPostDate(featuredFields.publishedAt, featuredPost?.created_at),
+  );
+  const featuredExcerpt = $derived(excerptFrom(featuredFields));
+  const featuredHref = $derived(
+    featuredPost
+      ? `/blog/${encodeURIComponent(featuredPost.slug || featuredPost.id)}`
+      : '/blog',
+  );
 
   /** @param {MouseEvent} event @param {string} href */
   function go(event, href) {
@@ -85,6 +109,16 @@
         discoverIndex += 1;
       }, 4200);
     }
+
+    void (async () => {
+      try {
+        const posts = await listBlogPosts();
+        featuredPost = posts[0] || null;
+        blogStatus = 'ready';
+      } catch {
+        blogStatus = 'error';
+      }
+    })();
 
     tryPlayHeroVideo();
     heroVideoEl?.addEventListener('loadeddata', tryPlayHeroVideo);
@@ -315,6 +349,55 @@
             Listen to All For Ummah recordings — from familiar songs to newer ones.
           </p>
           <a class="discover-cta" href="/discoversong" onclick={(event) => go(event, '/discoversong')}>Tune In</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="home-blog" id="blog">
+      <div class="home-blog-inner">
+        <div class="home-blog-copy">
+          <p class="home-blog-label">Blog</p>
+          <h2 class="home-blog-title">Stories and Nasyid Insights</h2>
+          <p class="home-blog-text">
+            Read about nasyid, competitions, and the All For Ummah journey.
+          </p>
+          <a class="home-blog-cta" href="/blog" onclick={(event) => go(event, '/blog')}>
+            View blog
+          </a>
+        </div>
+
+        <div class="home-blog-feature">
+          {#if blogStatus === 'loading'}
+            <div class="blog-loading" role="status" aria-label="Loading article">
+              <div class="blog-loading-bar" aria-hidden="true"></div>
+            </div>
+          {:else if featuredPost}
+            <a
+              class="home-blog-feature-link"
+              href={featuredHref}
+              onclick={(event) => go(event, featuredHref)}
+            >
+              {#if featuredImage}
+                <span class="home-blog-feature-media">
+                  <img src={featuredImage} alt="" loading="lazy" />
+                </span>
+              {/if}
+              <span class="home-blog-feature-body">
+                {#if featuredDate}
+                  <time class="home-blog-feature-date" datetime={featuredFields.publishedAt || ''}>
+                    {featuredDate}
+                  </time>
+                {/if}
+                <span class="home-blog-feature-title">{featuredTitle}</span>
+                {#if featuredExcerpt}
+                  <span class="home-blog-feature-excerpt">{featuredExcerpt}</span>
+                {/if}
+                <span class="home-blog-feature-more">Read article</span>
+              </span>
+            </a>
+          {:else}
+            <p class="home-blog-empty">New articles coming soon.</p>
+          {/if}
         </div>
       </div>
     </section>

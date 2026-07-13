@@ -14,6 +14,7 @@
   const open = $derived(sideNav.open);
   const isHome = $derived(path === '/');
   const isSongs = $derived(path === '/discoversong' || path.startsWith('/discoversong/'));
+  const isBlog = $derived(path === '/blog' || path.startsWith('/blog/'));
 
   /** @param {MouseEvent} event @param {string} href */
   function go(event, href) {
@@ -92,6 +93,19 @@
             onclick={(event) => go(event, '/discoversong')}
           >
             <span>Songs</span>
+            <svg class="side-nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a
+            class="side-nav-link"
+            class:is-active={isBlog}
+            href="/blog"
+            onclick={(event) => go(event, '/blog')}
+          >
+            <span>Blog</span>
             <svg class="side-nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
