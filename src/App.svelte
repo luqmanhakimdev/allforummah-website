@@ -8,6 +8,8 @@
   import PlayerEmbed from './lib/PlayerEmbed.svelte';
   import { player, playSong } from './lib/playerState.svelte.js';
   import { getPlaylistVideo } from './lib/songs.js';
+  import { setPageMeta } from './lib/seo.js';
+  import { DEFAULT_DESCRIPTION } from './lib/site.js';
 
   /** @param {string} pathname */
   function normalize(pathname) {
@@ -27,9 +29,30 @@
     return '/discoversong';
   }
 
+  /** @param {string} nextPath */
+  function applySeo(nextPath) {
+    if (nextPath === '/discoversong') {
+      setPageMeta({
+        title: 'Song Collection',
+        description:
+          'Discover All For Ummah songs and performances — recordings, festival nasyid, and top picks from YouTube.',
+        path: '/discoversong',
+      });
+      return;
+    }
+    setPageMeta({
+      description: DEFAULT_DESCRIPTION,
+      path: '/',
+    });
+  }
+
   let path = $state(
     resolvePath(typeof window !== 'undefined' ? window.location.pathname : '/'),
   );
+
+  $effect(() => {
+    applySeo(path);
+  });
 
   onMount(() => {
     const sync = () => {

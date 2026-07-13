@@ -20,12 +20,12 @@
   const R2 = 'https://pub-30ed7488d88a4eeebfc5f9f0c3b793c2.r2.dev';
 
   const aboutImages = [
-    { src: `${R2}/about-us.jpg`, alt: 'All For Ummah' },
-    { src: `${R2}/afu2.jpg`, alt: 'All For Ummah' },
-    { src: `${R2}/afu3.jpg`, alt: 'All For Ummah' },
-    { src: `${R2}/afu4.jpg`, alt: 'All For Ummah' },
-    { src: `${R2}/afu5.jpg`, alt: 'All For Ummah' },
-    { src: `${R2}/afu6.jpg`, alt: 'All For Ummah' },
+    { src: `${R2}/about-us.jpg`, alt: 'All For Ummah group portrait' },
+    { src: `${R2}/afu2.jpg`, alt: 'All For Ummah performing on stage' },
+    { src: `${R2}/afu3.jpg`, alt: 'All For Ummah members together' },
+    { src: `${R2}/afu4.jpg`, alt: 'All For Ummah live performance' },
+    { src: `${R2}/afu5.jpg`, alt: 'All For Ummah at a nasyid event' },
+    { src: `${R2}/afu6.jpg`, alt: 'All For Ummah behind the scenes' },
   ];
 
   const discoverThumbs = getTopPicks().map((video) => ({
@@ -72,7 +72,6 @@
   }
 
   onMount(() => {
-    document.title = 'All For Ummah';
     ensureCountdown();
     const galleryId = setInterval(() => {
       aboutIndex = (aboutIndex + 1) % aboutImages.length;
@@ -356,7 +355,7 @@
             class="videos-link"
             href="https://www.youtube.com/@AllForUmmah/videos"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             View all
           </a>
@@ -390,7 +389,7 @@
             class="videos-link"
             href="https://www.youtube.com/playlist?list=PLcB3_2mlOVT0"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             View playlist
           </a>
@@ -453,7 +452,7 @@
             class="facebook-cta"
             href="https://www.facebook.com/AFUmusic"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             AFU Facebook
           </a>

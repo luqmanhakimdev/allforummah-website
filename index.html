@@ -5,7 +5,56 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>All For Ummah</title>
+    <meta
+      name="description"
+      content="All For Ummah is a Malaysian nasyid group. Listen to songs, watch performances, and follow the journey — Sebuah Perjalanan."
+    />
+    <meta name="theme-color" content="#0a0612" />
+    <meta name="author" content="All For Ummah" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="%SITE_URL%/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="All For Ummah" />
+    <meta property="og:title" content="All For Ummah — Sebuah Perjalanan" />
+    <meta
+      property="og:description"
+      content="All For Ummah is a Malaysian nasyid group. Listen to songs, watch performances, and follow the journey — Sebuah Perjalanan."
+    />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:image" content="%SITE_URL%/concert.jpg" />
+    <meta property="og:image:alt" content="All For Ummah — Sebuah Perjalanan" />
+    <meta property="og:locale" content="en_MY" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="All For Ummah — Sebuah Perjalanan" />
+    <meta
+      name="twitter:description"
+      content="All For Ummah is a Malaysian nasyid group. Listen to songs, watch performances, and follow the journey — Sebuah Perjalanan."
+    />
+    <meta name="twitter:image" content="%SITE_URL%/concert.jpg" />
+
+    <title>All For Ummah — Sebuah Perjalanan</title>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "MusicGroup",
+        "name": "All For Ummah",
+        "alternateName": "AFU",
+        "description": "All For Ummah is a Malaysian nasyid group. They perform nasyid songs and have represented SMA Persekutuan Kajang in secondary school nasyid competitions.",
+        "url": "%SITE_URL%/",
+        "image": "%SITE_URL%/concert.jpg",
+        "genre": ["Nasyid", "Islamic music"],
+        "sameAs": [
+          "https://www.facebook.com/AFUmusic",
+          "https://www.instagram.com/allforummahofficial/",
+          "https://www.tiktok.com/@allforummah",
+          "https://www.youtube.com/@AllForUmmah"
+        ]
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,6 +65,22 @@
   </head>
   <body>
     <div id="app"></div>
+    <noscript>
+      <main>
+        <h1>All For Ummah</h1>
+        <p>Sebuah Perjalanan</p>
+        <p>
+          All For Ummah is a Malaysian nasyid group. Listen to songs, watch
+          performances, and follow the journey.
+        </p>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/discoversong">Discover songs</a></li>
+          <li><a href="https://www.youtube.com/@AllForUmmah">YouTube</a></li>
+          <li><a href="https://www.facebook.com/AFUmusic">Facebook</a></li>
+        </ul>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
